@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Pengguna & Hak Akses — BANI MAD KAMARI</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/js/supabase-config.js"></script><script src="../assets/js/cloud.js"></script>
+<style>
+.notice{margin:12px 0;padding:14px 16px;border-radius:12px;border:1px solid #d8e8dc;background:#f3faf5;color:#214936;font-size:13px;line-height:1.55}
+.notice.warn{border-color:#ead9ad;background:#fffaf0;color:#765b13}.notice.err{border-color:#f0caca;background:#fff5f5;color:#8d1d1d}
+.role-guide{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+.role-card{border:1px solid #e1e8e2;border-radius:14px;padding:16px;background:#fff}.role-card h3{margin:6px 0;color:#214936;font-size:16px}
+.badge{display:inline-block;padding:5px 9px;border-radius:999px;background:#edf5f0;color:#214936;font-size:10px;font-weight:800}
+.role-card p,.role-card li{font-size:12px;line-height:1.6;color:#59675f}.role-card ul{padding-left:18px;margin-bottom:0}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.formgrid label{font-size:11px;color:#68736c}.formgrid input,.formgrid select{width:100%;padding:10px;border:1px solid #ddd;margin-top:5px;box-sizing:border-box}
+.full{grid-column:1/-1}.crudbar{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}.crudbar button{padding:11px 15px;border:0;background:#214936;color:#fff;cursor:pointer}
+.table-box{background:#fff;border:1px solid #e2e5df;overflow:auto}table{width:100%;border-collapse:collapse;min-width:980px}th{background:#f1f3ee;text-align:left;font-size:10px;padding:12px}td{padding:12px;border-top:1px solid #edf0eb;font-size:12px}.action{border:0;background:none;color:#214936;font-weight:bold;cursor:pointer}
+.modal-bg{position:fixed;inset:0;background:#10281d88;display:none;align-items:center;justify-content:center;z-index:50}.modal-bg.show{display:flex}.modal{background:#fff;width:min(700px,94vw);max-height:90vh;overflow:auto;padding:28px}.modal h2{font:26px Georgia;color:#214936;margin-top:0}.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}.modal-actions button{padding:11px 16px;border:0;cursor:pointer}.save{background:#214936;color:#fff}.cancel{background:#eee}
+.password-cell{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}.copy{cursor:pointer;border:1px solid #d9e2dc;background:#f6faf7;border-radius:7px;padding:3px 7px;font-size:10px;margin-left:6px}
+@media(max-width:800px){.role-guide{grid-template-columns:1fr}.formgrid{grid-template-columns:1fr}.full{grid-column:auto}}
+</style></head>
+<body class="admin-body">
+<aside class="sidebar"><a class="brand" href="index.html"><span class="nav-icon">▦</span><span>Dashboard</span></a><nav>
+<a href="index.html">▦ Dashboard</a><a href="keluarga.html"><span class="nav-icon">👥</span><span>Data Keluarga</span></a><a href="silsilah.html"><span class="nav-icon">🌳</span><span>Silsilah</span></a><a href="pengurus.html"><span class="nav-icon">👔</span><span>Pengurus</span></a><a href="kontak.html"><span class="nav-icon">☎</span><span>Kontak</span></a><a href="reuni.html"><span class="nav-icon">📅</span><span>Reuni</span></a><a href="pendaftaran.html"><span class="nav-icon">✎</span><span>Pendaftaran</span></a><a href="galeri.html"><span class="nav-icon">▣</span><span>Galeri</span></a><a href="berita.html"><span class="nav-icon">▤</span><span>Berita</span></a><a href="kas.html"><span class="nav-icon">Rp</span><span>Kas Reuni</span></a><a href="pengguna.html"><span class="nav-icon">●</span><span>Pengguna & Hak Akses</span></a><a href="pengaturan.html"><span class="nav-icon">⚙</span><span>Pengaturan</span></a>
+</nav><button id="logout" class="side-logout">Keluar</button></aside>
+<main class="admin-main"><header class="admin-head"><div><span class="eyebrow">SUPABASE AUTH</span><h1>👤 Pengguna & Hak Akses</h1><p>Halaman ini khusus Super Admin.</p></div><a class="btn ghost" href="../index.html">Lihat Website ↗</a></header>
+<div class="cloudbar">Status: <b data-bmk-mode>☁️ Supabase</b> · <span data-bmk-user></span></div>
+<div id="notice" class="notice" style="display:none"></div>
+
+<section class="panel"><div class="panel-head"><h2>Role & Hak Akses</h2><span class="pill">Aturan Sistem</span></div>
+<div class="role-guide">
+<article class="role-card"><span class="badge">SUPER ADMIN</span><h3>Akses penuh</h3><p>Dapat membuka seluruh menu dan mengelola sistem.</p><ul><li>Semua menu</li><li>Pengguna & Hak Akses</li><li>Pengaturan</li><li>Kas</li></ul></article>
+<article class="role-card"><span class="badge">ADMIN</span><h3>Akses operasional</h3><p>Mengelola kegiatan dan data operasional.</p><ul><li>Keluarga, Silsilah</li><li>Reuni & Pendaftaran</li><li>Galeri, Berita</li><li>Kas</li></ul></article>
+<article class="role-card"><span class="badge">EDITOR</span><h3>Akses konten</h3><p>Mengelola data keluarga dan konten.</p><ul><li>Keluarga, Silsilah</li><li>Reuni & Pendaftaran</li><li>Galeri, Berita</li><li>Tidak ada akses Kas/Pengguna/Pengaturan</li></ul></article>
+</div></section>
+
+<div class="crudbar"><button onclick="openForm()">＋ Tambah Pengguna</button></div>
+<div class="table-box"><table><thead><tr><th>NAMA</th><th>EMAIL</th><th>PASSWORD YANG DIBERIKAN</th><th>ROLE / HAK AKSES</th><th>AKSI</th></tr></thead><tbody id="rows"></tbody></table></div>
+
+<div class="modal-bg" id="modal"><div class="modal"><h2>Tambah Pengguna</h2>
+<div class="notice warn">Password di bawah adalah password yang Anda berikan kepada pengguna. Catatan ini disimpan agar Super Admin tidak lupa. Sebaiknya pengguna menggantinya setelah login pertama.</div>
+<form id="form"><div class="formgrid">
+<label>Nama<input name="nama" required></label>
+<label>Email<input name="email" type="email" required></label>
+<label>Password yang diberikan<input name="password" type="text" minlength="6" autocomplete="off" required></label>
+<label>Role<select name="role" required><option value="editor">Editor</option><option value="admin">Admin</option><option value="super_admin">Super Admin</option></select></label>
+</div><div class="modal-actions"><button type="button" class="cancel" onclick="closeForm()">Batal</button><button class="save" id="saveBtn">Buat Akun & Kirim Konfirmasi</button></div></form></div></div>
+</main>
+<script>
+let data=[];
+const roleLabels={super_admin:"Super Admin",admin:"Admin",editor:"Editor"};
+const roleMenus={
+super_admin:"Semua menu",
+admin:"Dashboard, Keluarga, Silsilah, Reuni, Pendaftaran, Galeri, Berita, Kas",
+editor:"Dashboard, Keluarga, Silsilah, Reuni, Pendaftaran, Galeri, Berita"
+};
+document.getElementById("logout")?.addEventListener("click",()=>BMK.signOut());
+(async()=>{if(window.BMK?.cloud){const ok=await BMK.requireAuth(["super_admin"]);if(!ok)return;}load();})();
+
+function notice(msg,type=""){const el=document.getElementById("notice");el.className="notice "+type;el.innerHTML=msg;el.style.display="block";}
+async function load(){
+ try{
+   const {data:d,error}=await BMK.supabase.from("profiles").select("id,nama,email,role,password_diberikan").order("nama");
+   if(error)throw error; data=d||[];
+   document.getElementById("rows").innerHTML=data.map(x=>`<tr>
+   <td>${BMK.escape(x.nama||"-")}</td>
+   <td>${BMK.escape(x.email||"-")}</td>
+   <td class="password-cell">${BMK.escape(x.password_diberikan||"-")} ${x.password_diberikan?`<button class="copy" onclick="copyPass('${encodeURIComponent(x.password_diberikan)}')">Salin</button>`:""}</td>
+   <td><b>${BMK.escape(roleLabels[x.role]||x.role||"-")}</b><br><small>${BMK.escape(roleMenus[x.role]||"")}</small></td>
+   <td>${x.role==="super_admin"?"":`<button class="action" onclick="changeRole('${x.id}','${x.role==="admin"?"editor":"admin"}')">Ubah Role</button>`}</td>
+   </tr>`).join("");
+ }catch(e){notice(BMK.escape(e.message||"Gagal memuat pengguna."),"err")}
+}
+async function copyPass(v){try{await navigator.clipboard.writeText(decodeURIComponent(v));BMK.toast("Password disalin.","success")}catch(e){BMK.toast("Gagal menyalin password.","error")}}
+async function changeRole(id,role){
+ try{const {error}=await BMK.supabase.from("profiles").update({role}).eq("id",id);if(error)throw error;await load();BMK.toast("Role berhasil diubah.","success")}
+ catch(e){BMK.toast(e.message,"error")}
+}
+function openForm(){document.getElementById("modal").classList.add("show")}
+function closeForm(){document.getElementById("modal").classList.remove("show")}
+document.getElementById("form").onsubmit=async e=>{
+ e.preventDefault();
+ const f=new FormData(e.target),btn=document.getElementById("saveBtn");
+ const payload={nama:String(f.get("nama")||"").trim(),email:String(f.get("email")||"").trim(),password:String(f.get("password")||""),role:String(f.get("role")||"editor")};
+ if(payload.password.length<6){BMK.toast("Password minimal 6 karakter.","error");return}
+ btn.disabled=true;btn.textContent="Membuat akun & mengirim email...";
+ try{
+   const result=await BMK.createUserBySuperAdmin(payload);
+   closeForm();e.target.reset();await load();
+   notice(`<strong>✓ Pengguna berhasil dibuat.</strong> Email konfirmasi telah dikirim ke <b>${BMK.escape(payload.email)}</b>.<br>Role: <b>${BMK.escape(roleLabels[payload.role])}</b>. Password yang diberikan sudah dicatat di daftar pengguna. Pengguna harus melakukan konfirmasi lalu login secara manual.`, "");
+   BMK.toast("Pengguna berhasil dibuat dan email konfirmasi dikirim.","success");
+ }catch(err){
+   notice(`<strong>Gagal membuat pengguna.</strong> ${BMK.escape(err.message||"Terjadi kesalahan.")}`,"err");
+   BMK.toast(err.message||"Gagal membuat pengguna.","error");
+ }finally{btn.disabled=false;btn.textContent="Buat Akun & Kirim Konfirmasi"}
+};
+</script></body></html>
