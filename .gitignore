@@ -1,0 +1,15 @@
+# Local/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local secrets
+.env
+.env.*
+!.env.example
+
+# Build/cache
+node_modules/
+dist/
+build/
