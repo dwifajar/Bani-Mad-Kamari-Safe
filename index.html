@@ -158,10 +158,10 @@
    <span>COUNTDOWN REUNI</span>
    <div class="countdown"><div><b id="days">--</b><small>Hari</small></div><div><b id="hours">--</b><small>Jam</small></div><div><b id="mins">--</b><small>Menit</small></div><div><b id="secs">--</b><small>Detik</small></div></div>
    <div class="reunion-details" id="reunionDetails">
-    <div class="reunion-detail"><span>📅</span><div><small>Tanggal</small><strong id="eventDate">Belum diatur</strong></div></div>
-    <div class="reunion-detail"><span>⏰</span><div><small>Waktu</small><strong id="eventTime">Belum diatur</strong></div></div>
-    <div class="reunion-detail"><span>📍</span><div><small>Tempat Reuni</small><strong id="eventPlace">Belum diatur</strong></div></div>
-    <div class="reunion-detail"><span>🏠</span><div><small>Alamat Tempat Reuni</small><strong id="eventAddress">Belum diatur</strong></div></div>
+    <div class="reunion-detail"><span>📅</span><div><small>Tanggal</small><strong id="eventDate"></strong></div></div>
+    <div class="reunion-detail"><span>⏰</span><div><small>Waktu</small><strong id="eventTime"></strong></div></div>
+    <div class="reunion-detail"><span>📍</span><div><small>Tempat Reuni</small><strong id="eventPlace"></strong></div></div>
+    <div class="reunion-detail"><span>🏠</span><div><small>Alamat Tempat Reuni</small><strong id="eventAddress"></strong></div></div>
     <div class="reunion-detail"><span>📝</span><div><small>Keterangan</small><strong id="eventDescription">Informasi reuni dapat diatur dari dashboard admin.</strong></div></div>
     <div class="reunion-map-box" id="eventMapBox" hidden>
       <div class="reunion-map-icon">📍</div>
@@ -432,10 +432,10 @@ document.addEventListener("DOMContentLoaded", async function(){
     const mapBox=document.getElementById("eventMapBox");
 
     const fmtDate=v=>{
-      if(!v) return "Belum diatur";
+      if(!v) return "";
       const ds=String(v).slice(0,10);
       const p=ds.split("-").map(Number);
-      if(p.length!==3 || p.some(n=>!Number.isFinite(n))) return "Belum diatur";
+      if(p.length!==3 || p.some(n=>!Number.isFinite(n))) return "";
       // Format berdasarkan kalender WIB, bukan timezone browser.
       const d=new Date(Date.UTC(p[0],p[1]-1,p[2],12,0,0));
       return d.toLocaleDateString("id-ID",{
@@ -448,7 +448,7 @@ document.addEventListener("DOMContentLoaded", async function(){
       const raw=String(v||"").trim()
         .replace(/\b(wib|wit|wita)\b/ig,"")
         .trim().replace(/\./g,":");
-      return raw ? raw+" WIB" : "Belum diatur";
+      return raw ? raw+" WIB" : "";
     };
 
     const setCountdown=(days,hours,mins,secs)=>{
@@ -487,8 +487,8 @@ document.addEventListener("DOMContentLoaded", async function(){
 
       if(dateEl) dateEl.textContent=fmtDate(ev.tanggal);
       if(timeEl) timeEl.textContent=fmtTime(ev.waktu);
-      if(placeEl) placeEl.textContent=String(ev.tempat||"Belum diatur");
-      if(addressEl) addressEl.textContent=String(ev.alamat_reuni||"Belum diatur");
+      if(placeEl) placeEl.textContent=String(ev.tempat||"");
+      if(addressEl) addressEl.textContent=String(ev.alamat_reuni||"");
       if(descEl) descEl.textContent=String(ev.keterangan||"Tidak ada keterangan tambahan.");
 
       let raw=String(ev.maps_url||"").trim();
@@ -558,9 +558,9 @@ document.addEventListener("DOMContentLoaded", async function(){
     }else{
       clearCountdown();
       if(dateEl) dateEl.textContent="Belum ada jadwal reuni";
-      if(timeEl) timeEl.textContent="Belum diatur";
-      if(placeEl) placeEl.textContent="Belum diatur";
-      if(addressEl) addressEl.textContent="Belum diatur";
+      if(timeEl) timeEl.textContent="";
+      if(placeEl) placeEl.textContent="";
+      if(addressEl) addressEl.textContent="";
       if(descEl) descEl.textContent="Atur Reuni melalui Dashboard Admin → Reuni.";
       if(mapBox) mapBox.hidden=true;
       console.warn("[BMK V14.17] Tidak ada agenda reuni mendatang.");
@@ -575,11 +575,12 @@ document.addEventListener("DOMContentLoaded", async function(){
     const descEl=document.getElementById("eventDescription");
     const mapBox=document.getElementById("eventMapBox");
     if(dateEl) dateEl.textContent="Belum dapat memuat jadwal";
-    if(timeEl) timeEl.textContent="Belum diatur";
-    if(placeEl) placeEl.textContent="Belum diatur";
-    if(addressEl) addressEl.textContent="Belum diatur";
+    if(timeEl) timeEl.textContent="";
+    if(placeEl) placeEl.textContent="";
+    if(addressEl) addressEl.textContent="";
     if(descEl) descEl.textContent="Data reuni belum dapat dibaca dari database.";
     if(mapBox) mapBox.hidden=true;
+    revealCountdown();
   }
 
 
