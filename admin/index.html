@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Dashboard Admin — BANI MAD KAMARI</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/js/supabase-config.js"></script>
+<script src="../assets/js/cloud.js"></script>
+<style>
+.dashboard-loading{opacity:.65}
+.activity-loading{padding:18px;color:#64748b}
+.activity small{display:block}
+.quick a{display:block;text-decoration:none}
+.roadmap .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.roadmap .steps>div{padding:14px;border-radius:14px;background:#f8fafc}
+.roadmap .steps .done{background:#ecfdf5}
+@media(max-width:800px){.roadmap .steps{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.roadmap .steps{grid-template-columns:1fr}}
+</style>
+
+<style>
+.stat-icon{
+  width:40px;height:40px;border-radius:13px;
+  display:grid;place-items:center;margin-bottom:10px;
+  background:#edf5f0;color:#1c5a49;font-size:17px;font-weight:800;
+  border:1px solid #dce8e1;
+}
+.admin-stats>div:nth-child(2) .stat-icon{background:#fbf2df;color:#9a742f;border-color:#efdfbb}
+.admin-stats>div:nth-child(3) .stat-icon{background:#edf4f8;color:#4e7386;border-color:#dce8ee}
+.admin-stats>div:nth-child(4) .stat-icon{background:#f5eee5;color:#84643e;border-color:#eadcca}
+
+.birthday-panel{margin-top:18px}
+.birthday-list{display:grid;gap:10px}
+.birthday-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid #e5ebe7;border-radius:14px;background:#fbfdfc}
+.birthday-avatar{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:#edf5f0;font-size:18px;flex:0 0 40px}
+.birthday-info{min-width:0;flex:1}
+.birthday-info b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.birthday-info small{color:#64748b}
+.birthday-date{font-weight:700;color:#1c5a49;white-space:nowrap}
+.birthday-empty{padding:16px;border:1px dashed #d7e1dc;border-radius:14px;color:#64748b;text-align:center}
+</style>
+</head>
+<body class="admin-body" data-bmk-version="V14.31">
+<aside class="sidebar">
+<a class="brand" href="../index.html"><span class="brand-mark">BMK</span><span><b>BANI MAD KAMARI</b><small>Admin Panel</small></span></a>
+<nav>
+<a class="active" href="index.html"><span class="nav-icon">▦</span><span>Dashboard</span></a>
+<a href="keluarga.html"><span class="nav-icon">👥</span><span>Data Keluarga</span></a>
+<a href="silsilah.html"><span class="nav-icon">🌳</span><span>Silsilah</span></a>
+<a href="pengurus.html"><span class="nav-icon">👔</span><span>Pengurus</span></a>
+<a href="kontak.html"><span class="nav-icon">☎</span><span>Kontak</span></a>
+<a href="reuni.html"><span class="nav-icon">📅</span><span>Reuni</span></a>
+<a href="pendaftaran.html"><span class="nav-icon">✎</span><span>Pendaftaran</span></a>
+<a href="galeri.html"><span class="nav-icon">▣</span><span>Galeri</span></a>
+<a href="berita.html"><span class="nav-icon">▤</span><span>Berita</span></a>
+<a href="kas.html"><span class="nav-icon">Rp</span><span>Kas Reuni</span></a>
+<a href="pengguna.html"><span class="nav-icon">●</span><span>Pengguna</span></a>
+<a href="pengaturan.html"><span class="nav-icon">⚙</span><span>Pengaturan</span></a>
+<a href="audit.html"><span class="nav-icon">📝</span><span>Log Aktivitas</span></a>
+</nav>
+<button id="logout" class="side-logout">Keluar</button>
+</aside>
+<main class="admin-main">
+<header class="admin-head">
+<div><span class="eyebrow">DASHBOARD</span><h1>Selamat datang, <span id="adminName">Administrator</span></h1><p>Ringkasan portal keluarga BANI MAD KAMARI.</p></div>
+<a class="btn ghost" href="../index.html">Lihat Website ↗</a>
+</header>
+<div id="configNotice" style="display:none;margin-bottom:18px;padding:14px 16px;border-radius:14px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412">
+<b>Supabase belum dikonfigurasi.</b><br><small>Isi <code>assets/js/supabase-config.js</code> dengan Project URL dan anon/public key Supabase Anda.</small>
+</div>
+<section class="panel global-search-panel">
+<div class="panel-head"><h2>🔎 Pencarian Global</h2><span class="pill" id="globalSearchSummary">Ketik untuk mencari</span></div>
+<div class="global-search-wrap"><input id="globalSearchInput" class="global-search-input" type="search" autocomplete="off" placeholder="Cari keluarga, pengurus, kontak, reuni, atau berita…"><button id="globalSearchClear" class="global-search-clear" type="button" aria-label="Hapus pencarian">×</button></div>
+<div class="global-search-meta">Pencarian hanya membaca data yang dapat diakses akun admin Anda.</div>
+<div id="globalSearchResults" class="global-search-results"></div>
+</section>
+<div class="admin-stats dashboard-loading" id="stats">
+<div><span class="stat-icon">👥</span><span>Total Keluarga</span><b id="familyCount">—</b><small id="familyMeta">Memuat database</small></div>
+<div><span class="stat-icon">👤</span><span>Total Anggota</span><b id="memberCount">—</b><small id="memberMeta">Memuat database</small></div>
+<div><span class="stat-icon">♂</span><span>Laki-laki</span><b id="maleCount">—</b><small id="maleMeta">Memuat database</small></div>
+<div><span class="stat-icon">♀</span><span>Perempuan</span><b id="femaleCount">—</b><small id="femaleMeta">Memuat database</small></div>
+<div><span class="stat-icon">✓</span><span>Konfirmasi Reuni</span><b id="rsvpCount">—</b><small id="rsvpMeta">Memuat database</small></div>
+<div><span class="stat-icon">▣</span><span>Album Foto</span><b id="galleryCount">—</b><small id="galleryMeta">Memuat database</small></div>
+<div><span class="stat-icon">Rp</span><span>Kas Reuni</span><b id="kasBalance">—</b><small id="kasMeta">Memuat transaksi</small></div>
+<div><span class="stat-icon">📅</span><span>Reuni Berikutnya</span><b id="nextReunion">—</b><small id="nextReunionMeta">Memuat jadwal</small></div>
+</div>
+<div class="admin-grid">
+<section class="panel"><div class="panel-head"><h2>Aktivitas terbaru</h2><span class="pill" data-bmk-mode>Memeriksa…</span></div><div class="activity" id="activity"><div class="activity-loading">Memeriksa koneksi…</div></div></section>
+<section class="panel"><div class="panel-head"><h2>Aksi cepat</h2></div><div class="quick">
+<a class="btn ghost" href="keluarga.html">＋ Tambah Keluarga</a><a class="btn ghost" href="berita.html">＋ Buat Pengumuman</a><a class="btn ghost" href="galeri.html">＋ Upload Galeri</a><a class="btn ghost" href="reuni.html">📅 Atur Reuni</a>
+</div></section>
+</div>
+
+<div class="panel birthday-panel">
+  <div class="panel-head">
+    <h2>🎂 Ulang Tahun Keluarga</h2>
+    <span class="pill" id="birthdaySummary">Memuat…</span>
+  </div>
+  <div id="birthdayList" class="birthday-list">
+    <div class="birthday-empty">Memuat data ulang tahun…</div>
+  </div>
+</div>
+
+<div class="panel backup-panel">
+  <div class="panel-head">
+    <h2>💾 Backup Data</h2>
+    <span class="pill">Admin</span>
+  </div>
+  <div class="backup-box">
+    <div class="backup-copy">
+      <b>Unduh salinan data dashboard</b>
+      <small>Backup dibuat langsung dari data yang dapat diakses akun admin saat ini. File disimpan di komputer Anda dalam format JSON dan tidak mengubah data Supabase.</small>
+      <div id="backupStatus" class="backup-status">Siap membuat backup.</div>
+    </div>
+    <button type="button" class="btn" id="backupBtn">⬇ Unduh Backup JSON</button>
+  </div>
+</div>
+<div class="panel roadmap"><div class="panel-head"><h2>Status sistem</h2><span class="pill">Produksi • Supabase</span></div><div class="steps">
+<div class="done"><b>01</b><span>Website publik</span><small>Aktif</small></div><div class="done"><b>02</b><span>Database & autentikasi</span><small>Aktif</small></div><div class="done"><b>03</b><span>CRUD keluarga & silsilah</span><small>Aktif</small></div><div class="done"><b>04</b><span>Reuni, galeri & kas</span><small>Aktif</small></div>
+</div></div>
+<div class="admin-version">BANI MAD KAMARI • Admin Panel • V14.29 • Build 20260930</div></main>
+<script src="../assets/js/admin.js"></script>
+
+<style>
+.global-search-panel{margin-top:18px}.global-search-wrap{position:relative}.global-search-input{width:100%;box-sizing:border-box;padding:14px 46px 14px 16px;border:1px solid #dbe3ef;border-radius:14px;font:inherit;outline:none;background:#fff}.global-search-input:focus{border-color:#94a3b8;box-shadow:0 0 0 3px rgba(100,116,139,.10)}.global-search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);border:0;background:transparent;font-size:20px;cursor:pointer;color:#64748b;display:none}.global-search-results{margin-top:12px;display:grid;gap:8px}.global-search-result{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;text-decoration:none;color:inherit}.global-search-result:hover{background:#f8fafc}.global-search-result .result-icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:#f1f5f9;flex:0 0 34px}.global-search-result b{display:block}.global-search-result small{display:block;color:#64748b;margin-top:3px}.global-search-empty{padding:14px;color:#64748b;text-align:center}.global-search-meta{margin-top:7px;color:#64748b;font-size:13px}.admin-version{text-align:center;color:#94a3b8;font-size:12px;padding:20px 0 8px}
+</style>
+<style>
+.backup-panel .backup-box{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px;border:1px solid #dfe9e3;border-radius:16px;background:#f8fbf9}
+.backup-panel .backup-copy b{display:block;margin-bottom:5px}
+.backup-panel .backup-copy small{color:#64748b;line-height:1.5}
+.backup-status{margin-top:10px;color:#64748b;font-size:13px}
+@media(max-width:620px){.backup-panel .backup-box{flex-direction:column;align-items:stretch}.backup-panel .backup-box .btn{width:100%}}
+</style>
+<script>
+(async function(){
+  const B=window.BMK;
+  const notice=document.getElementById("configNotice");
+  if(!B || !B.cloud || !B.supabase){
+    notice.style.display="block";
+  
+  document.getElementById("activity").innerHTML='<div class="activity-loading">Halaman admin aktif, tetapi Supabase belum terhubung.</div>';
+    document.getElementById("stats").classList.remove("dashboard-loading");
+    return;
+  }
+  const ok=await B.requireAuth(["super_admin","admin","editor"]);
+  if(!ok)return;
+  const sb=B.supabase;
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    if(session){
+      const {data:p}=await sb.from("profiles").select("nama,role").eq("id",session.user.id).maybeSingle();
+      // Tampilan nama dashboard menggunakan nama profil yang valid.
+      // Jika field nama kosong atau berisi email, gunakan label berdasarkan role.
+      const rawName=String(p?.nama||"").trim();
+      const email=String(session.user.email||"").trim();
+      const looksLikeEmail=rawName.includes("@") && rawName.toLowerCase()===email.toLowerCase();
+      const roleLabel={
+        super_admin:"Administrator",
+        admin:"Admin",
+        editor:"Editor"
+      };
+      const displayName=(!rawName || looksLikeEmail)
+        ? (roleLabel[p?.role] || "Administrator")
+        : rawName;
+      document.getElementById("adminName").textContent=displayName;
+    }
+  }catch(e){}
+  const esc=B.escape;
+  // Ulang tahun keluarga — hanya membaca data yang sudah ada.
+  async function loadBirthdays(){
+    const box=document.getElementById("birthdayList");
+    const summary=document.getElementById("birthdaySummary");
+    try{
+      const res=await sb.from("anggota_keluarga").select("*");
+      if(res.error) throw res.error;
+      const rows=res.data||[];
+      const candidates=[];
+      const today=new Date();
+      today.setHours(0,0,0,0);
+      const currentYear=today.getFullYear();
+
+      const getName=row=>{
+        return String(row.nama||row.nama_lengkap||row.name||"Tanpa nama").trim();
+      };
+      const getBirth=row=>{
+        const v=row.tanggal_lahir ?? row.tgl_lahir ?? row.birth_date ?? row.birthdate ?? row.tanggalLahir;
+        if(!v) return null;
+        const s=String(v).trim();
+        const m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+        if(m) return {month:Number(m[2]),day:Number(m[3]),raw:s};
+        const d=new Date(s);
+        if(!Number.isNaN(d.getTime())) return {month:d.getMonth()+1,day:d.getDate(),raw:s};
+        return null;
+      };
+
+      for(const row of rows){
+        const b=getBirth(row);
+        if(!b || !b.month || !b.day) continue;
+        let next=new Date(currentYear,b.month-1,b.day);
+        if(next<today) next=new Date(currentYear+1,b.month-1,b.day);
+        const diff=Math.round((next-today)/86400000);
+        if(diff<=30) candidates.push({row,next,diff,name:getName(row),birth:b});
+      }
+
+      candidates.sort((a,b)=>a.next-b.next);
+      const visible=candidates.slice(0,8);
+
+      if(!visible.length){
+        summary.textContent="30 hari ke depan";
+        box.innerHTML='<div class="birthday-empty">Tidak ada ulang tahun dalam 30 hari ke depan.</div>';
+        return;
+      }
+
+      summary.textContent=visible.length+" ulang tahun terdekat";
+      box.innerHTML=visible.map(item=>{
+        const date=item.next.toLocaleDateString("id-ID",{day:"2-digit",month:"short"});
+        let when=item.diff===0?"Hari ini":(item.diff===1?"Besok":"Dalam "+item.diff+" hari");
+        return `<div class="birthday-item">
+          <div class="birthday-avatar">🎂</div>
+          <div class="birthday-info"><b>${esc(item.name)}</b><small>${when}</small></div>
+          <div class="birthday-date">${date}</div>
+        </div>`;
+      }).join("");
+    }catch(err){
+      console.error("Ulang tahun:",err);
+      summary.textContent="Tidak tersedia";
+      box.innerHTML='<div class="birthday-empty">Data ulang tahun belum dapat dimuat.</div>';
+    }
+  }
+  loadBirthdays();
+
+  // Pencarian Global Admin V14.29 — hanya membaca data yang dapat diakses akun admin.
+  const globalSearchSources=[
+    {table:"anggota_keluarga",label:"Data Keluarga",icon:"👥",href:"keluarga.html",nameKeys:["nama","nama_lengkap","name"],detailKeys:["nik","hubungan","gender","alamat"]},
+    {table:"pengurus",label:"Pengurus",icon:"👔",href:"pengurus.html",nameKeys:["nama","nama_lengkap","name","jabatan"],detailKeys:["jabatan","kontak","telepon","no_hp","email"]},
+    {table:"kontak",label:"Kontak",icon:"☎",href:"kontak.html",nameKeys:["nama","nama_lengkap","name","judul"],detailKeys:["telepon","no_hp","email","keterangan"]},
+    {table:"agenda",label:"Reuni",icon:"📅",href:"reuni.html",nameKeys:["judul","nama","name"],detailKeys:["tanggal","waktu","lokasi","deskripsi"]},
+    {table:"berita",label:"Berita",icon:"📰",href:"berita.html",nameKeys:["judul","title","nama","name"],detailKeys:["tanggal","kategori","ringkasan","deskripsi"]}
+  ];
+  const globalSearchInput=document.getElementById("globalSearchInput"), globalSearchResults=document.getElementById("globalSearchResults"), globalSearchSummary=document.getElementById("globalSearchSummary"), globalSearchClear=document.getElementById("globalSearchClear");
+  let globalSearchCache=[], globalSearchLoaded=false;
+  const pickValue=(row,keys)=>{for(const key of keys){const v=row?.[key];if(v!==undefined&&v!==null&&String(v).trim()!=="")return String(v).trim();}return "";};
+  const buildDetail=(row,keys)=>{const vals=[];for(const key of keys){const v=row?.[key];if(v!==undefined&&v!==null&&String(v).trim()!=="")vals.push(String(v).trim());if(vals.length>=3)break;}return vals.join(" • ");};
+  async function loadGlobalSearchData(){
+    if(globalSearchLoaded)return; globalSearchLoaded=true;
+    const all=[];
+    for(const src of globalSearchSources){try{const r=await sb.from(src.table).select("*").limit(200);if(r.error)continue;for(const row of (r.data||[])){const name=pickValue(row,src.nameKeys);const raw=Object.values(row||{}).filter(v=>v!==null&&v!==undefined).join(" ");all.push({label:src.label,icon:src.icon,href:src.href,name:name||src.label,detail:buildDetail(row,src.detailKeys),text:(name+" "+raw).toLowerCase()});}}catch(e){console.warn("Global search",src.table,e);}}
+    globalSearchCache=all; globalSearchSummary.textContent=all.length+" data siap dicari";
+  }
+  function renderGlobalSearch(q){
+    const query=String(q||"").trim().toLowerCase(); globalSearchClear.style.display=query?"block":"none";
+    if(!query){globalSearchResults.innerHTML="";globalSearchSummary.textContent=globalSearchLoaded?(globalSearchCache.length+" data siap dicari"):"Ketik untuk mencari";return;}
+    const words=query.split(/\s+/).filter(Boolean), hits=globalSearchCache.filter(item=>words.every(w=>item.text.includes(w))).slice(0,20);
+    globalSearchSummary.textContent=hits.length+" hasil";
+    if(!hits.length){globalSearchResults.innerHTML='<div class="global-search-empty">Tidak ada data yang cocok.</div>';return;}
+    globalSearchResults.innerHTML=hits.map(item=>`<a class="global-search-result" href="${item.href}"><span class="result-icon">${item.icon}</span><span><b>${esc(item.name)}</b><small>${esc(item.label)}${item.detail?" • "+esc(item.detail):""}</small></span></a>`).join("");
+  }
+  globalSearchInput?.addEventListener("focus",()=>loadGlobalSearchData().then(()=>renderGlobalSearch(globalSearchInput.value)));
+  globalSearchInput?.addEventListener("input",()=>loadGlobalSearchData().then(()=>renderGlobalSearch(globalSearchInput.value)));
+  globalSearchClear?.addEventListener("click",()=>{globalSearchInput.value="";renderGlobalSearch("");globalSearchInput.focus();});
+
+  const money=n=>Number(n||0).toLocaleString("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0});
+  const count=async t=>{const r=await sb.from(t).select("*",{count:"exact",head:true});if(r.error)throw r.error;return r.count||0};
+  try{
+    const [f,r,g]=await Promise.all([count("anggota_keluarga"),count("rsvp"),count("galeri")]);
+    document.getElementById("familyCount").textContent=f.toLocaleString("id-ID");
+    document.getElementById("rsvpCount").textContent=r.toLocaleString("id-ID");
+    document.getElementById("galleryCount").textContent=g.toLocaleString("id-ID");
+    document.getElementById("familyMeta").textContent="Data keluarga tersimpan";
+    document.getElementById("rsvpMeta").textContent="Total konfirmasi masuk";
+    document.getElementById("galleryMeta").textContent="Foto/album tersimpan";
+
+    // Statistik anggota dihitung dari data yang sama dengan menu Data Keluarga.
+    const members=await sb.from("anggota_keluarga").select("gender");
+    if(members.error) throw members.error;
+    const rows=members.data||[];
+    const male=rows.filter(x=>x.gender==="L").length;
+    const female=rows.filter(x=>x.gender==="P").length;
+    document.getElementById("memberCount").textContent=rows.length.toLocaleString("id-ID");
+    document.getElementById("maleCount").textContent=male.toLocaleString("id-ID");
+    document.getElementById("femaleCount").textContent=female.toLocaleString("id-ID");
+    document.getElementById("memberMeta").textContent="Semua anggota keluarga";
+    document.getElementById("maleMeta").textContent="Laki-laki";
+    document.getElementById("femaleMeta").textContent="Perempuan";
+
+    // Jadwal Reuni berikutnya menggunakan tabel agenda yang sama dengan countdown publik.
+    const now=new Date();
+    const today=now.toISOString().slice(0,10);
+    const rr=await sb.from("agenda").select("judul,tanggal,waktu,is_reuni_utama").gte("tanggal",today).order("tanggal",{ascending:true}).order("waktu",{ascending:true}).limit(1);
+    if(rr.error) throw rr.error;
+    const reunion=rr.data?.[0];
+    if(reunion){
+      const d=new Date(`${reunion.tanggal}T00:00:00`);
+      const dateText=d.toLocaleDateString("id-ID",{day:"2-digit",month:"short",year:"numeric"});
+      document.getElementById("nextReunion").textContent=dateText;
+      document.getElementById("nextReunionMeta").textContent=String(reunion.judul||"Reuni berikutnya");
+    }else{
+      document.getElementById("nextReunion").textContent="—";
+      document.getElementById("nextReunionMeta").textContent="Belum ada jadwal";
+    }
+    const k=await sb.from("kas").select("jenis,nominal");
+    if(k.error)throw k.error;
+    const bal=(k.data||[]).reduce((s,x)=>s+(x.jenis==="masuk"?Number(x.nominal||0):-Number(x.nominal||0)),0);
+    document.getElementById("kasBalance").textContent=money(bal);
+    document.getElementById("kasMeta").textContent=(k.data||[]).length+" transaksi";
+    document.getElementById("stats").classList.remove("dashboard-loading");
+  }catch(e){
+    console.error(e);B.toast("Dashboard terhubung ke Supabase, tetapi sebagian data gagal dimuat.","error");
+    document.getElementById("stats").classList.remove("dashboard-loading");
+  }
+  document.getElementById("activity").innerHTML='<div class="activity-loading">Dashboard aktif dan terhubung ke Supabase.</div>';
+})();
+
+  const backupBtn=document.getElementById("backupBtn");
+  if(backupBtn){
+    backupBtn.addEventListener("click", async ()=>{
+      const status=document.getElementById("backupStatus");
+      backupBtn.disabled=true;
+      backupBtn.textContent="⏳ Menyiapkan…";
+      status.textContent="Mengambil data yang tersedia…";
+      try{
+        const tables=[
+          ["anggota_keluarga","Data Keluarga"],
+          ["agenda","Reuni"],
+          ["kas","Kas Reuni"]
+        ];
+        const backup={
+          aplikasi:"BANI MAD KAMARI",
+          versi:document.body.dataset.bmkVersion||"V14.29",
+          dibuat_pada:new Date().toISOString(),
+          catatan:"Backup dibuat dari Dashboard Admin. Tidak mengubah data Supabase.",
+          data:{}
+        };
+        // Gunakan client Supabase global karena `sb` berada di scope IIFE dashboard.
+        const backupSupabase=window.BMK?.supabase;
+        if(!backupSupabase) throw new Error("Koneksi Supabase belum tersedia.");
+        for(const [table,label] of tables){
+          const res=await backupSupabase.from(table).select("*");
+          if(res.error) throw new Error(label+": "+res.error.message);
+          backup.data[table]=res.data||[];
+        }
+        const blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json;charset=utf-8"});
+        const url=URL.createObjectURL(blob);
+        const a=document.createElement("a");
+        const stamp=new Date().toISOString().replace(/[:.]/g,"-");
+        a.href=url;
+        a.download="BMK-backup-"+stamp+".json";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        status.textContent="Backup berhasil dibuat dan diunduh ke komputer Anda.";
+      }catch(err){
+        console.error("Backup error:",err);
+        status.textContent="Backup gagal: "+(err.message||"Terjadi kesalahan.");
+      }finally{
+        backupBtn.disabled=false;
+        backupBtn.textContent="⬇ Unduh Backup JSON";
+      }
+    });
+  }
+
+</script>
+</body></html>
