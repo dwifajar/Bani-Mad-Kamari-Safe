@@ -2,1249 +2,972 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BANI MAD KAMARI — Reuni Keluarga</title>
-<meta name="description" content="Portal resmi Reuni Keluarga BANI MAD KAMARI">
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link rel="dns-prefetch" href="//cdn.jsdelivr.net">
-<link rel="stylesheet" href="assets/css/style.css">
-<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script defer src="assets/js/supabase-config.js"></script><script defer src="assets/js/cloud.js"></script><style>
-/* V14.7 — countdown stabil, sumber data hanya dari Reuni utama di Supabase */
-.countdown, .countdown > div, .countdown b, .countdown small { animation:none !important; transition:none !important; opacity:1 !important; visibility:visible !important; }
-.countdown b { display:block; font-variant-numeric:tabular-nums; }
-.reunion-map-box{grid-column:1/-1;display:flex;align-items:center;gap:14px;margin-top:4px;padding:14px 16px;border:1px solid rgba(255,255,255,.16);border-radius:12px;background:rgba(255,255,255,.06)}
-.reunion-map-icon{font-size:25px}.reunion-map-copy{display:flex;flex-direction:column;gap:3px;flex:1}.reunion-map-copy small{font-size:9px;letter-spacing:1.5px;opacity:.7}.reunion-map-copy strong{font-size:14px}.reunion-map-copy span{font-size:11px;opacity:.75}.map-btn{white-space:nowrap;padding:9px 13px !important;font-size:11px !important}@media(max-width:650px){.reunion-map-box{align-items:flex-start;flex-wrap:wrap}.reunion-map-copy{min-width:calc(100% - 55px)}.map-btn{margin-left:39px}}
-.map-link{display:inline-block;margin-top:8px;font-size:12px;font-weight:700;color:inherit;text-decoration:underline;}
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Dashboard Admin — BANI MAD KAMARI</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/js/supabase-config.js"></script>
+<script src="../assets/js/cloud.js"></script>
+<style>
+.dashboard-loading{opacity:.65}
+.activity-loading{padding:18px;color:#64748b}
+.activity small{display:block}
+.quick a{display:block;text-decoration:none}
+.roadmap .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.roadmap .steps>div{padding:14px;border-radius:14px;background:#f8fafc}
+.roadmap .steps .done{background:#ecfdf5}
+@media(max-width:800px){.roadmap .steps{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.roadmap .steps{grid-template-columns:1fr}}
 </style>
 
-<style id="bmk-family-tree-v1410">
-/* V14.10 — diagram silsilah bebas scroll horizontal + vertikal, menyesuaikan jumlah keluarga */
-.family-tree-wrap{position:relative;overflow:auto;overflow-x:auto;overflow-y:auto;width:100%;height:min(78vh,900px);max-height:900px;min-height:420px;padding:22px 18px 34px;background:#fbfaf5;border:1px solid #e8e4d8;border-radius:18px;cursor:grab;scroll-behavior:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;box-sizing:border-box;}
-.family-tree-wrap.is-dragging{cursor:grabbing;user-select:none;}
-.family-tree-wrap::-webkit-scrollbar{width:10px;height:10px;}
-.family-tree-wrap::-webkit-scrollbar-thumb{background:#b6a77e;border-radius:999px;}
-.family-tree-wrap::-webkit-scrollbar-track{background:#eeeade;border-radius:999px;}
-.family-tree{width:max-content;min-width:100%;display:block;}
-.family-diagram-canvas{display:flex;flex-direction:column;align-items:center;gap:0;padding:28px 40px 60px;width:max-content;min-width:100%;box-sizing:border-box;}
-.family-unit{position:relative;display:flex;flex-direction:column;align-items:center;padding:0 18px 34px;flex:0 0 auto;}
-.family-couple{position:relative;display:flex;align-items:stretch;justify-content:center;gap:0;z-index:2;flex:0 0 auto;}
-.family-couple .family-person{position:relative;margin:0 8px;}
-.family-couple .family-person + .family-person:before{content:"";position:absolute;left:-8px;top:50%;width:8px;border-top:3px solid #8d7440;}
-.family-couple:after{content:"";position:absolute;left:50%;bottom:-34px;height:34px;border-left:3px solid #8d7440;transform:translateX(-50%);}
-.family-descendants{position:relative;display:flex;justify-content:center;align-items:flex-start;gap:34px;margin-top:34px;padding-top:34px;width:max-content;flex:0 0 auto;}
-.family-descendants:before{content:"";position:absolute;top:0;left:50%;right:auto;width:0;border-top:3px solid #8d7440;transform:translateX(-50%);}
-.family-descendants > .family-unit{position:relative;padding-left:14px;padding-right:14px;}
-.family-descendants > .family-unit:before{content:"";position:absolute;top:-34px;left:50%;height:34px;border-left:3px solid #8d7440;transform:translateX(-50%);}
-.family-descendants > .family-unit:after{content:"";position:absolute;top:-34px;left:0;right:0;border-top:3px solid #8d7440;z-index:0;}
-.family-descendants > .family-unit:first-child:after{left:50%;}
-.family-descendants > .family-unit:last-child:after{right:50%;}
-.family-person{width:132px;background:#fff;border:2px solid #ded8c7;border-radius:12px;box-shadow:0 5px 16px rgba(33,73,54,.10);overflow:hidden;flex:0 0 132px;}
-.family-photo{height:92px;background:#f0eee5;display:flex;align-items:center;justify-content:center;overflow:hidden;}
-.family-photo img{width:100%;height:100%;object-fit:cover;display:block;}
-.family-avatar-fallback{font-size:42px;line-height:1;}
-.family-person-body{text-align:center;padding:8px 7px 10px;}
-.family-person-body strong{display:block;color:#214936;font-size:13px;line-height:1.25;}
-.family-person-body small{display:block;color:#7b817b;font-size:10px;margin-top:3px;}
-.family-diagram-title{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
-.family-diagram-title>span{font-size:25px;}
-.family-diagram-title b{display:block;color:#214936;font-family:Georgia,serif;font-size:18px;}
-.family-diagram-title small{color:#788078;font-size:11px;}
-.family-unlinked{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;border-top:1px dashed #d7d1c1;padding:24px 8px 4px;margin:0 22px;}
-.family-unlinked>span{width:100%;text-align:center;color:#777;font-size:11px;margin-bottom:4px;}
-@media(max-width:760px){.family-tree-wrap{height:70vh;min-height:360px;padding:16px 12px 24px}.family-tree{min-width:max-content}.family-diagram-canvas{padding-left:24px;padding-right:24px}.family-descendants{gap:20px}.family-person{width:118px;flex-basis:118px}.family-photo{height:82px}}
-
-/* V14.8 — garis silsilah lebih jelas */
-.family-tree-wrap{overflow-x:auto;overflow-y:hidden;padding:22px 12px 30px;background:#fbfaf5;border:1px solid #e8e4d8;border-radius:18px;}
-.family-tree{min-width:720px;}
-.family-diagram-canvas{display:flex;flex-direction:column;align-items:center;gap:0;padding:28px 22px 40px;}
-.family-unit{position:relative;display:flex;flex-direction:column;align-items:center;padding:0 18px 34px;}
-.family-couple{position:relative;display:flex;align-items:stretch;justify-content:center;gap:0;z-index:2;}
-.family-couple .family-person{position:relative;margin:0 8px;}
-.family-couple .family-person + .family-person:before{content:"";position:absolute;left:-8px;top:50%;width:8px;border-top:3px solid #9d8450;}
-.family-couple:after{content:"";position:absolute;left:50%;bottom:-34px;height:34px;border-left:3px solid #9d8450;transform:translateX(-50%);}
-.family-descendants{position:relative;display:flex;justify-content:center;align-items:flex-start;gap:34px;margin-top:34px;padding-top:34px;}
-.family-descendants:before{content:"";position:absolute;top:0;left:calc(50%);right:calc(50%);border-top:3px solid #9d8450;}
-.family-descendants > .family-unit{position:relative;padding-left:14px;padding-right:14px;}
-.family-descendants > .family-unit:before{content:"";position:absolute;top:-34px;left:50%;height:34px;border-left:3px solid #9d8450;transform:translateX(-50%);}
-.family-descendants > .family-unit:after{content:"";position:absolute;top:-34px;left:0;right:0;border-top:3px solid #9d8450;z-index:0;}
-.family-descendants > .family-unit:first-child:after{left:50%;}
-.family-descendants > .family-unit:last-child:after{right:50%;}
-.family-person{width:132px;background:#fff;border:2px solid #ded8c7;border-radius:12px;box-shadow:0 5px 16px rgba(33,73,54,.10);overflow:hidden;}
-.family-photo{height:92px;background:#f0eee5;display:flex;align-items:center;justify-content:center;overflow:hidden;}
-.family-photo img{width:100%;height:100%;object-fit:cover;display:block;}
-.family-avatar-fallback{font-size:42px;line-height:1;}
-.family-person-body{text-align:center;padding:8px 7px 10px;}
-.family-person-body strong{display:block;color:#214936;font-size:13px;line-height:1.25;}
-.family-person-body small{display:block;color:#7b817b;font-size:10px;margin-top:3px;}
-.family-diagram-title{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
-.family-diagram-title>span{font-size:25px;}
-.family-diagram-title b{display:block;color:#214936;font-family:Georgia,serif;font-size:18px;}
-.family-diagram-title small{color:#788078;font-size:11px;}
-.family-unlinked{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;border-top:1px dashed #d7d1c1;padding:24px 8px 4px;margin:0 22px;}
-.family-unlinked>span{width:100%;text-align:center;color:#777;font-size:11px;margin-bottom:4px;}
-@media(max-width:760px){.family-tree{min-width:900px}.family-descendants{gap:20px}.family-person{width:118px}.family-photo{height:82px}}
-</style>
-
-<style id="bmk-v1411-zoom-fix">
-.family-tree-tools{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 10px;padding:10px 12px;background:#fffdf8;border:1px solid #e5dfcf;border-radius:14px;box-sizing:border-box;}
-.family-tree-tools-title{display:flex;align-items:center;gap:7px;color:#214936;font-size:12px;white-space:nowrap;}
-.family-tree-tools-title small{color:#7b817b;font-size:10px;font-weight:400;margin-left:3px;}
-.family-tree-zoom-controls{display:flex;align-items:center;gap:7px;min-width:0;}
-.family-tree-zoom-controls button{width:34px;height:34px;border:1px solid #d7cfbd;border-radius:9px;background:#fff;color:#214936;font-size:20px;font-weight:700;cursor:pointer;line-height:1;}
-.family-tree-zoom-controls button:hover{background:#f3efe4;}
-.family-tree-zoom-controls button.reset{width:auto;padding:0 10px;font-size:11px;}
-.family-tree-zoom-controls input[type=range]{width:min(180px,28vw);accent-color:#214936;cursor:pointer;}
-#treeZoomValue{min-width:42px;text-align:center;font-size:11px;font-weight:700;color:#6b6f68;}
-.family-tree-wrap{overflow:auto!important;overflow-x:auto!important;overflow-y:auto!important;touch-action:none!important;}
-.family-tree-zoom-layer{width:max-content;min-width:100%;transform-origin:top left;box-sizing:border-box;}
-.family-tree-zoom-layer .family-tree{min-width:max-content!important;width:max-content!important;}
-@media(max-width:760px){
- .family-tree-tools{align-items:flex-start;flex-direction:column;gap:8px;padding:10px;}
- .family-tree-tools-title{white-space:normal;flex-wrap:wrap;}
- .family-tree-tools-title small{width:100%;margin-left:23px;}
- .family-tree-zoom-controls{width:100%;justify-content:space-between;}
- .family-tree-zoom-controls input[type=range]{flex:1;width:auto;min-width:90px;}
- .family-tree-zoom-controls button{width:38px;height:38px;}
- .family-tree-wrap{height:70vh!important;min-height:360px!important;}
+<style>
+.stat-icon{
+  width:40px;height:40px;border-radius:13px;
+  display:grid;place-items:center;margin-bottom:10px;
+  background:#edf5f0;color:#1c5a49;font-size:17px;font-weight:800;
+  border:1px solid #dce8e1;
 }
-</style>
-<style id="bmk-countdown-static-v1417">
-.countdown,.countdown *{animation:none!important;transition:none!important;opacity:1!important;visibility:visible!important;transform:none!important;filter:none!important;}
-.countdown b{display:block!important;visibility:visible!important;font-variant-numeric:tabular-nums!important;}
-</style>
-<style id="bmk-countdown-v1417">#days,#hours,#mins,#secs{animation:none!important;transition:none!important;opacity:1!important;visibility:visible!important;transform:none!important}.countdown,.countdown>div{animation:none!important;transition:none!important}</style><style>
-/* BMK Gallery Lightbox */
-.bmk-lightbox{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(0,0,0,.86);backdrop-filter:blur(5px)}
-.bmk-lightbox.is-open{display:flex}
-.bmk-lightbox img,.bmk-lightbox video{max-width:min(94vw,1400px);max-height:88vh;width:auto;height:auto;object-fit:contain;border-radius:14px;box-shadow:0 20px 70px rgba(0,0,0,.5)}
-.bmk-lightbox video{background:#000}.gallery-media-video{width:100%;height:100%;object-fit:cover;display:block}.gallery-video-badge{position:absolute;top:12px;right:12px;background:rgba(18,63,54,.92);color:#fff;border-radius:999px;padding:5px 9px;font-size:10px;font-weight:700;letter-spacing:.5px}
-.bmk-lightbox-close{position:absolute;right:22px;top:18px;width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;font-size:28px;line-height:44px;cursor:pointer}
-.bmk-lightbox-close:hover{background:rgba(255,255,255,.24)}
-.bmk-lightbox-caption{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);max-width:90vw;color:#fff;text-align:center;background:rgba(0,0,0,.45);padding:8px 14px;border-radius:999px;font-size:14px}
-body.bmk-lightbox-lock{overflow:hidden}
-</style><link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#123f36">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="BANI MAD KAMARI">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
+.admin-stats>div:nth-child(2) .stat-icon{background:#fbf2df;color:#9a742f;border-color:#efdfbb}
+.admin-stats>div:nth-child(3) .stat-icon{background:#edf4f8;color:#4e7386;border-color:#dce8ee}
+.admin-stats>div:nth-child(4) .stat-icon{background:#f5eee5;color:#84643e;border-color:#eadcca}
 
-<style id="bmk-v1441-startup">
-#bmk-startup{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;background:#f7f3e9;color:#123f36;transition:opacity .26s ease,visibility .26s ease}
-#bmk-startup.hide{opacity:0;visibility:hidden;pointer-events:none}
-.bmk-startup-inner{text-align:center;width:min(82vw,300px)}
-.bmk-startup-mark{width:82px;height:82px;margin:0 auto 16px;border-radius:22px;background:#123f36;color:#fff;display:grid;place-items:center;font-weight:900;letter-spacing:.4px;font-size:22px;box-shadow:0 12px 28px rgba(18,63,54,.18)}
-.bmk-startup-inner strong{display:block;font-size:15px;letter-spacing:1px}
-.bmk-startup-inner span{display:block;margin-top:4px;font-size:10px;color:#6b756f;letter-spacing:1.5px}
-.bmk-startup-progress{height:5px;width:100%;margin:18px auto 0;border-radius:999px;background:#ded9cd;overflow:hidden}
-.bmk-startup-progress i{display:block;width:0;height:100%;border-radius:999px;background:#123f36;transition:width .20s ease}
-.bmk-startup-status{margin-top:9px;font-size:10px;color:#7a807c}
-.bmk-startup-percent{margin-top:7px;font-size:10px;font-weight:700;color:#123f36;letter-spacing:.6px}
-@media(min-width:901px){#bmk-startup{display:none}}
+.birthday-panel{margin-top:18px}
+.birthday-list{display:grid;gap:10px}
+.birthday-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid #e5ebe7;border-radius:14px;background:#fbfdfc}
+.birthday-avatar{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:#edf5f0;font-size:18px;flex:0 0 40px}
+.birthday-info{min-width:0;flex:1}
+.birthday-info b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.birthday-info small{color:#64748b}
+.birthday-date{font-weight:700;color:#1c5a49;white-space:nowrap}
+.birthday-empty{padding:16px;border:1px dashed #d7e1dc;border-radius:14px;color:#64748b;text-align:center}
+</style>
+
+<style>
+.export-panel{margin-top:18px}
+.export-copy{display:grid;gap:4px;margin-bottom:14px}
+.export-copy small{color:#64748b;line-height:1.55}
+.export-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.export-btn{justify-content:center;min-height:44px}
+.export-status{margin-top:12px;font-size:13px;color:#64748b}
+@media(max-width:900px){.export-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.export-grid{grid-template-columns:1fr}}
 </style>
 
 
-<style id="bmk-v1439-fast-nav">
-#reuni,#silsilah{scroll-margin-top:76px}
-.hero-actions{position:relative;z-index:20}
-.hero-actions .btn[data-bmk-hero-nav]{position:relative;z-index:21;touch-action:manipulation;-webkit-tap-highlight-color:transparent;pointer-events:auto}
+<style>
+.export-pdf-btn{justify-content:center;min-height:44px}
+.export-pdf-btn:disabled{opacity:.65;cursor:wait}
 </style>
 
 
-<style id="bmk-v1443-rsvp-qr-style">
-.bmk-ticket-overlay{position:fixed;inset:0;z-index:100100;background:rgba(8,24,16,.78);display:none;align-items:center;justify-content:center;padding:18px}.bmk-ticket-overlay.show{display:flex}.bmk-ticket-card{width:min(440px,96vw);max-height:92vh;overflow:auto;background:#fff;color:#183728;border-radius:22px;padding:26px;text-align:center;box-shadow:0 22px 80px #0005}.bmk-ticket-card h2{margin:8px 0;color:#214936}.bmk-ticket-card p{font-size:14px;line-height:1.5;color:#5e6d63}.bmk-ticket-qr{display:flex;justify-content:center;align-items:center;min-height:220px;margin:18px auto;padding:12px;width:220px;max-width:100%;border:1px dashed #cbd8ce;border-radius:14px;background:#fff}.bmk-ticket-qr img,.bmk-ticket-qr canvas{max-width:100%;height:auto}.bmk-ticket-code{font-size:11px;word-break:break-all;color:#6a756d}.bmk-ticket-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:16px}.bmk-ticket-actions button{border:0;border-radius:10px;padding:11px 15px;cursor:pointer;font-weight:700}.bmk-ticket-primary{background:#214936;color:#fff}.bmk-ticket-secondary{background:#edf2ed;color:#214936}@media(max-width:480px){.bmk-ticket-card{padding:20px}.bmk-ticket-qr{width:200px;min-height:200px}}
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
+
+
+<style>
+.export-excel-kas-btn{justify-content:center;min-height:44px}
+.export-excel-kas-btn:disabled{opacity:.65;cursor:wait}
+.kas-export-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 10px}
+.kas-export-summary div{border:1px solid #e5ebe7;border-radius:10px;padding:8px 9px;background:#fbfdfc}
+.kas-export-summary small{display:block;color:#64748b;font-size:8px;margin-bottom:3px}
+.kas-export-summary b{font-size:11px}
+@media(max-width:700px){.kas-export-summary{grid-template-columns:1fr}}
 </style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
 </head>
-
-<div id="bmk-startup" aria-hidden="true">
-  <div class="bmk-startup-inner">
-    <div class="bmk-startup-mark">BMK</div>
-    <strong>BANI MAD KAMARI</strong>
-    <span>PORTAL KELUARGA</span>
-    <div class="bmk-startup-progress" aria-hidden="true"><i id="bmk-startup-bar"></i></div>
-    <div id="bmk-startup-percent" class="bmk-startup-percent">0%</div>
-    <div id="bmk-startup-status" class="bmk-startup-status">Memuat website…</div>
-  </div>
-</div>
-</div>
-
-<body data-bmk-version="V14.42">
-<a class="bmk-home-float" href="#top" aria-label="Kembali ke Beranda" title="Kembali ke Beranda">
-  <span class="home-icon">⌂</span>
-  <span class="home-label">Kembali ke Beranda</span>
-</a>
-<header class="topbar">
-  <div class="container nav">
-    <a class="brand" href="#beranda"><span class="brand-mark">BMK</span><span><b>BANI MAD KAMARI</b><small>Portal Keluarga</small></span></a>
-    <button class="menu-btn" id="menuBtn">☰</button>
-    <nav id="mainNav">
-      <a href="#beranda">Beranda</a><a href="#keluarga">Keluarga</a><a href="#silsilah">Silsilah</a>
-      <a href="#reuni">Reuni</a><a href="#pengurus">Pengurus</a><a href="#galeri">Galeri</a><a href="#berita">Berita</a>
-      <a class="nav-login" href="login.html">Login</a>
-    </nav>
-  </div>
+<body class="admin-body" data-bmk-version="V14.36">
+<aside class="sidebar">
+<a class="brand" href="../index.html"><span class="brand-mark">BMK</span><span><b>BANI MAD KAMARI</b><small>Admin Panel</small></span></a>
+<nav>
+<a class="active" href="index.html"><span class="nav-icon">▦</span><span>Dashboard</span></a>
+<a href="keluarga.html"><span class="nav-icon">👥</span><span>Data Keluarga</span></a>
+<a href="silsilah.html"><span class="nav-icon">🌳</span><span>Silsilah</span></a>
+<a href="pengurus.html"><span class="nav-icon">👔</span><span>Pengurus</span></a>
+<a href="kontak.html"><span class="nav-icon">☎</span><span>Kontak</span></a>
+<a href="reuni.html"><span class="nav-icon">📅</span><span>Reuni</span></a><a href="dashboard-reuni.html"><span class="nav-icon">📊</span><span>Dashboard Reuni</span></a>
+<a href="pendaftaran.html"><span class="nav-icon">✎</span><span>Pendaftaran</span></a>
+<a href="galeri.html"><span class="nav-icon">▣</span><span>Galeri</span></a>
+<a href="berita.html"><span class="nav-icon">▤</span><span>Berita</span></a>
+<a href="kas.html"><span class="nav-icon">Rp</span><span>Kas Reuni</span></a>
+<a href="pengguna.html"><span class="nav-icon">●</span><span>Pengguna</span></a>
+<a href="pengaturan.html"><span class="nav-icon">⚙</span><span>Pengaturan</span></a>
+<a href="audit.html"><span class="nav-icon">📝</span><span>Log Aktivitas</span></a>
+</nav>
+<button id="logout" class="side-logout">Keluar</button>
+</aside>
+<main class="admin-main">
+<header class="admin-head">
+<div><span class="eyebrow">DASHBOARD</span><h1>Selamat datang, <span id="adminName">Administrator</span></h1><p>Ringkasan portal keluarga BANI MAD KAMARI.</p></div>
+<a class="btn ghost" href="../index.html">Lihat Website ↗</a>
 </header>
-
-<main>
-<section id="beranda" class="hero">
-  <div class="hero-pattern"></div>
-  <div class="container hero-grid">
-    <div class="hero-copy">
-      <span class="eyebrow">KELUARGA BESAR • BANI MAD KAMARI</span>
-      <h1>Merajut silaturahmi,<br><em>menguatkan persaudaraan.</em></h1>
-      <p>Ruang digital keluarga untuk menyimpan cerita, mengenal generasi, berbagi kabar, dan mempersiapkan reuni bersama.</p>
-      <div class="hero-actions"><a class="btn primary" data-bmk-hero-nav href="#reuni">Lihat Reuni</a><a class="btn ghost" data-bmk-hero-nav href="#silsilah">Jelajahi Silsilah →</a></div>
-      <div class="mini-stats"><div><b id="publicGenerationCount">—</b><span>Generasi</span></div><div><b id="publicFamilyCount">—</b><span>Anggota</span></div><div><b>1</b><span>Keluarga Besar</span></div></div>
-    </div>
-    <div class="hero-card">
-      <div class="photo-placeholder"><span>✦</span><b>FAMILY</b><small>Moments & Memories</small></div>
-      <div class="event-card"><div><span class="dot"></span> REUNI KELUARGA</div><strong>Silaturahmi BANI MAD KAMARI</strong><small>Persiapan acara • Informasi segera diperbarui</small></div>
-    </div>
-  </div>
+<div id="configNotice" style="display:none;margin-bottom:18px;padding:14px 16px;border-radius:14px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412">
+<b>Supabase belum dikonfigurasi.</b><br><small>Isi <code>assets/js/supabase-config.js</code> dengan Project URL dan anon/public key Supabase Anda.</small>
+</div>
+<section class="panel global-search-panel">
+<div class="panel-head"><h2>🔎 Pencarian Global</h2><span class="pill" id="globalSearchSummary">Ketik untuk mencari</span></div>
+<div class="global-search-wrap"><input id="globalSearchInput" class="global-search-input" type="search" autocomplete="off" placeholder="Cari keluarga, pengurus, kontak, reuni, atau berita…"><button id="globalSearchClear" class="global-search-clear" type="button" aria-label="Hapus pencarian">×</button></div>
+<div class="global-search-meta">Pencarian hanya membaca data yang dapat diakses akun admin Anda.</div>
+<div id="globalSearchResults" class="global-search-results"></div>
 </section>
+<div class="admin-stats dashboard-loading" id="stats">
+<div><span class="stat-icon">👥</span><span>Total Keluarga</span><b id="familyCount">—</b><small id="familyMeta">Memuat database</small></div>
+<div><span class="stat-icon">👤</span><span>Total Anggota</span><b id="memberCount">—</b><small id="memberMeta">Memuat database</small></div>
+<div><span class="stat-icon">♂</span><span>Laki-laki</span><b id="maleCount">—</b><small id="maleMeta">Memuat database</small></div>
+<div><span class="stat-icon">♀</span><span>Perempuan</span><b id="femaleCount">—</b><small id="femaleMeta">Memuat database</small></div>
+<div><span class="stat-icon">✓</span><span>Konfirmasi Reuni</span><b id="rsvpCount">—</b><small id="rsvpMeta">Memuat database</small></div>
+<div><span class="stat-icon">▣</span><span>Album Foto</span><b id="galleryCount">—</b><small id="galleryMeta">Memuat database</small></div>
+<div><span class="stat-icon">Rp</span><span>Kas Reuni</span><b id="kasBalance">—</b><small id="kasMeta">Memuat transaksi</small></div>
+<div><span class="stat-icon">📅</span><span>Reuni Berikutnya</span><b id="nextReunion">—</b><small id="nextReunionMeta">Memuat jadwal</small></div>
+</div>
+<div class="admin-grid">
+<section class="panel"><div class="panel-head"><h2>Aktivitas terbaru</h2><span class="pill" data-bmk-mode>Memeriksa…</span></div><div class="activity" id="activity"><div class="activity-loading">Memeriksa koneksi…</div></div></section>
+<section class="panel"><div class="panel-head"><h2>Aksi cepat</h2></div><div class="quick">
+<a class="btn ghost" href="keluarga.html">＋ Tambah Keluarga</a><a class="btn ghost" href="berita.html">＋ Buat Pengumuman</a><a class="btn ghost" href="galeri.html">＋ Upload Galeri</a><a class="btn ghost" href="reuni.html">📅 Atur Reuni</a>
+</div></section>
+</div>
 
-<section id="reuni" class="section dark">
- <div class="container reunion">
-  <div>
-   <span class="eyebrow light">REUNI KELUARGA</span>
-   <h2>Waktunya berkumpul kembali.</h2>
-   <p>Semua informasi reuni tersedia di sini. Lihat jadwal acara dan langsung konfirmasi kehadiran tanpa perlu login.</p>
-   <button class="btn light-btn" type="button" id="openRsvp">Konfirmasi Kehadiran</button>
+<div class="panel birthday-panel">
+  <div class="panel-head">
+    <h2>🎂 Ulang Tahun Keluarga</h2>
+    <span class="pill" id="birthdaySummary">Memuat…</span>
   </div>
-  <div class="count-box">
-   <span>COUNTDOWN REUNI</span>
-   <div class="countdown"><div><b id="days">--</b><small>Hari</small></div><div><b id="hours">--</b><small>Jam</small></div><div><b id="mins">--</b><small>Menit</small></div><div><b id="secs">--</b><small>Detik</small></div></div>
-   <div class="reunion-details" id="reunionDetails">
-    <div class="reunion-detail"><span>📅</span><div><small>Tanggal</small><strong id="eventDate">Belum diatur</strong></div></div>
-    <div class="reunion-detail"><span>⏰</span><div><small>Waktu</small><strong id="eventTime">Belum diatur</strong></div></div>
-    <div class="reunion-detail"><span>📍</span><div><small>Tempat Reuni</small><strong id="eventPlace">Belum diatur</strong></div></div>
-    <div class="reunion-detail"><span>🏠</span><div><small>Alamat Tempat Reuni</small><strong id="eventAddress">Belum diatur</strong></div></div>
-    <div class="reunion-detail"><span>📝</span><div><small>Keterangan</small><strong id="eventDescription">Informasi reuni dapat diatur dari dashboard admin.</strong></div></div>
-    <div class="reunion-map-box" id="eventMapBox" hidden>
-      <div class="reunion-map-icon">📍</div>
-      <div class="reunion-map-copy"><small>LOKASI REUNI</small><strong>ShareLokasi / Google Maps</strong><span>Petunjuk menuju tempat reuni</span></div>
-      <a id="eventMap" class="btn map-btn" href="#" target="_blank" rel="noopener">Buka Lokasi ↗</a>
-    </div>
-   </div>
-  </div>
- </div>
-</section>
-
-<section id="keluarga" class="section soft">
- <div class="container">
-  <div class="section-head"><div><span class="eyebrow">KELUARGA BESAR</span><h2>Kenali keluarga kita</h2></div></div>
-  <div class="cards three">
-   <article class="card"><div class="icon">👨‍👩‍👧‍👦</div><h3>Data Keluarga</h3><p>Profil anggota keluarga dan cabang keluarga tersusun rapi.</p><a href="login.html">Buka database →</a></article>
-   <article class="card"><div class="icon">🌳</div><h3>Silsilah</h3><p>Jelajahi hubungan antar generasi secara visual dan interaktif.</p><a href="#silsilah">Lihat silsilah →</a></article>
-   <article class="card"><div class="icon">📸</div><h3>Kenangan</h3><p>Arsip foto, video, dan cerita keluarga dari masa ke masa.</p><a href="#galeri">Buka galeri →</a></article>
-  </div>
- </div>
-</section>
-
-<section id="silsilah" class="section">
- <div class="container">
-  <div class="section-head"><div><span class="eyebrow">FAMILY TREE</span><h2>Diagram Silsilah Keluarga</h2></div></div>
-  <p class="section-lead">Lihat hubungan keluarga secara visual dari generasi ke generasi. Nama dan hubungan ditampilkan berdasarkan data keluarga yang tersimpan di database.</p>
-  <div class="family-tree-tools" aria-label="Kontrol zoom bagan silsilah">
-    <div class="family-tree-tools-title">🔍 <b>Zoom Bagan</b><small>Cubit dengan dua jari untuk memperbesar/memperkecil • Geser untuk berpindah</small></div>
-    <div class="family-tree-zoom-controls">
-      <button type="button" id="treeZoomOut" aria-label="Perkecil bagan">−</button>
-      <input id="treeZoomRange" type="range" min="50" max="300" step="10" value="100" aria-label="Tingkat zoom bagan">
-      <button type="button" id="treeZoomIn" aria-label="Perbesar bagan">+</button>
-      <button type="button" id="treeZoomReset" class="reset" aria-label="Reset zoom">100%</button>
-      <span id="treeZoomValue">100%</span>
-    </div>
-  </div>
-  <div class="family-tree-wrap">
-    <div class="family-tree-zoom-layer" id="familyTreeZoomLayer">
-      <div class="family-tree" id="public-tree">
-      <div class="tree-loading"><span class="tree-spinner">◌</span> Memuat diagram silsilah...</div>
-      </div>
-    </div>
-  </div>
-  <div class="notice" id="public-tree-notice">Diagram silsilah akan dimuat dari database keluarga.</div>
- </div>
-</section>
-
-<section id="pengurus" class="section soft">
- <div class="container">
-  <div class="section-head"><div><span class="eyebrow">PENGURUS KELUARGA</span><h2>Daftar Pengurus</h2></div></div>
-  <p class="section-lead">Kenali pengurus yang membantu menjaga komunikasi, kegiatan, dan silaturahmi keluarga BANI MAD KAMARI.</p>
-  <div class="management-grid" id="public-pengurus">
-    <div class="management-empty">Memuat daftar pengurus...</div>
-  </div>
- </div>
-</section>
-
-<section class="section intro">
- <div class="container two-col">
-  <div><span class="eyebrow">TENTANG KELUARGA</span><h2>Satu akar, banyak cerita.</h2></div>
-  <div><p>Website keluarga ini menjadi rumah digital untuk BANI MAD KAMARI. Di sini setiap generasi dapat saling mengenal, menjaga dokumentasi keluarga, dan terus menyambung silaturahmi.</p><a class="text-link" href="#keluarga">Kenali keluarga →</a></div>
- </div>
-</section>
-
-<div class="rsvp-modal" id="rsvpModal" aria-hidden="true">
-  <div class="rsvp-backdrop" data-close-rsvp></div>
-  <div class="rsvp-dialog" role="dialog" aria-modal="true" aria-labelledby="rsvpTitle">
-    <button class="rsvp-close" type="button" data-close-rsvp aria-label="Tutup">×</button>
-    <span class="eyebrow">KONFIRMASI REUNI</span>
-    <h2 id="rsvpTitle">Konfirmasi Kehadiran</h2>
-    <p class="rsvp-intro">Isi data kehadiran Anda langsung di sini. Tidak perlu login ke portal.</p>
-    <form id="publicRsvpForm" data-bmk-rsvp-form>
-      <div class="rsvp-grid">
-        <label>Nama anggota keluarga
-          <select name="anggota_id" id="rsvpAnggota" required><option value="">Memuat daftar anggota...</option></select>
-        </label>
-        <label>Status kehadiran
-          <select name="status" required>
-            <option value="hadir">Hadir</option>
-            <option value="tidak_hadir">Tidak hadir</option>
-            <option value="mungkin">Masih mungkin</option>
-          </select>
-        </label>
-        <label>Jumlah yang hadir
-          <input name="jumlah" type="number" min="1" max="20" value="1" required>
-        </label>
-        <label>No. HP / WhatsApp
-          <input name="hp" type="tel" placeholder="08xxxxxxxxxx">
-        </label>
-        <label class="rsvp-full">Catatan
-          <textarea name="catatan" rows="3" placeholder="Contoh: datang bersama pasangan dan 2 anak"></textarea>
-        </label>
-      </div>
-      <div class="rsvp-actions">
-        <button class="btn ghost" type="button" data-close-rsvp>Batal</button>
-        <button class="btn primary" type="submit" id="rsvpSubmit">Kirim Konfirmasi</button>
-      </div>
-      <p class="rsvp-note">Data konfirmasi akan diteruskan kepada panitia reuni.</p>
-    </form>
+  <div id="birthdayList" class="birthday-list">
+    <div class="birthday-empty">Memuat data ulang tahun…</div>
   </div>
 </div>
 
-<section id="galeri" class="section">
- <div class="container"><div class="section-head"><div><span class="eyebrow">MEMORIES</span><h2>Galeri kenangan</h2></div></div>
-  <div class="gallery" id="public-gallery">
-    <div class="gallery-item large"><span>Memuat galeri...</span></div>
+<div class="panel backup-panel">
+  <div class="panel-head">
+    <h2>💾 Backup Data</h2>
+    <span class="pill">Admin</span>
   </div>
- </div>
-</section>
-
-<section id="berita" class="section soft">
- <div class="container"><div class="section-head"><div><span class="eyebrow">KABAR KELUARGA</span><h2>Berita & pengumuman</h2></div></div>
- <div class="news-grid" id="public-news"><article class="news-card"><div class="news-body"><span>Memuat berita...</span></div></article></div></section>
-
-<section class="cta"><div class="container"><span class="eyebrow">RUANG KELUARGA</span><h2>Semua cerita keluarga,<br>tersimpan dalam satu tempat.</h2><a class="btn primary" href="login.html">Masuk ke Portal Keluarga</a></div></section>
-</main>
-
-<div class="bmk-lightbox" id="bmk-gallery-lightbox" aria-hidden="true">
-  <button class="bmk-lightbox-close" type="button" aria-label="Tutup">×</button>
-  <img id="bmk-lightbox-image" src="" alt=""><video id="bmk-lightbox-video" controls playsinline preload="metadata" style="display:none"></video>
-  <div class="bmk-lightbox-caption" id="bmk-lightbox-caption"></div>
+  <div class="backup-box">
+    <div class="backup-copy">
+      <b>Unduh salinan data dashboard</b>
+      <small>Backup dibuat langsung dari data yang dapat diakses akun admin saat ini. File disimpan di komputer Anda dalam format JSON dan tidak mengubah data Supabase.</small>
+      <div id="backupStatus" class="backup-status">Siap membuat backup.</div>
+    </div>
+    <button type="button" class="btn" id="backupBtn">⬇ Unduh Backup JSON</button>
+  </div>
 </div>
 
-<footer><div class="container footer-grid">
-<div><a class="brand"><span class="brand-mark">BMK</span><span><b>BANI MAD KAMARI</b><small>Portal Keluarga</small></span></a><p>Merawat silaturahmi lintas generasi.</p></div>
-<div><b>Menu</b><a href="#keluarga">Keluarga</a><a href="#silsilah">Silsilah</a><a href="#pengurus">Pengurus</a><a href="#reuni">Reuni</a></div>
-<div><b>Portal</b><a href="login.html">Login Anggota</a><a href="admin/index.html">Dashboard Admin</a></div>
-<div class="footer-contact"><b>Kontak Keluarga</b><div id="public-contact"><span>Memuat kontak...</span></div></div>
-</div><div class="copyright">Copyright © <b id="site-year">2026</b> BANI MAD KAMARI • All Right Reserved • <b id="site-version">V14.42</b> • Build <b id="site-build">otomatis</b></div></footer>
-<script defer src="assets/js/app.js"></script>
+<div class="panel export-panel">
+  <div class="panel-head">
+    <h2>📤 Export Data</h2>
+    <span class="pill">CSV • PDF • Excel</span>
+  </div>
+  <div class="export-copy">
+    <b>Unduh data untuk Excel</b>
+    <small>Pilih data yang ingin diunduh dalam format CSV atau PDF. PDF dibuat otomatis dengan judul, tanggal pembuatan, tabel rapi, dan nomor halaman. Export hanya membaca data dan tidak mengubah Supabase.</small>
+  </div>
+  <div class="export-grid">
+    <button type="button" class="btn ghost export-btn" data-export-table="anggota_keluarga" data-export-label="Data Keluarga">👥 Data Keluarga</button>
+    <button type="button" class="btn ghost export-pdf-btn" data-export-table="anggota_keluarga" data-export-label="Data Keluarga">📄 PDF Data Keluarga</button>
+    <button type="button" class="btn ghost export-btn" data-export-table="agenda" data-export-label="Reuni">📅 Reuni</button>
+    <button type="button" class="btn ghost export-pdf-btn" data-export-table="agenda" data-export-label="Reuni">📄 PDF Reuni</button>
+    <button type="button" class="btn ghost export-btn" data-export-table="rsvp" data-export-label="Pendaftaran">✓ Pendaftaran</button>
+    <button type="button" class="btn ghost export-pdf-btn" data-export-table="rsvp" data-export-label="Pendaftaran">📄 PDF Pendaftaran</button>
+    <button type="button" class="btn ghost export-btn" data-export-table="kas" data-export-label="Kas Reuni">Rp Kas Reuni</button>
+    <button type="button" class="btn ghost export-pdf-btn" data-export-table="kas" data-export-label="Kas Reuni">📄 PDF Kas Reuni</button>
+    <button type="button" class="btn ghost export-excel-kas-btn" data-export-table="kas" data-export-label="Kas Reuni">📊 Excel Kas Reuni</button>
+    <button type="button" class="btn ghost export-btn" data-export-table="pengurus" data-export-label="Pengurus">👔 Pengurus</button>
+    <button type="button" class="btn ghost export-pdf-btn" data-export-table="pengurus" data-export-label="Pengurus">📄 PDF Pengurus</button>
+    <button type="button" class="btn ghost export-btn" data-export-table="berita" data-export-label="Berita">📰 Berita</button>
+    <button type="button" class="btn ghost export-pdf-btn" data-export-table="berita" data-export-label="Berita">📄 PDF Berita</button>
+    <button type="button" class="btn ghost export-btn" data-export-table="galeri" data-export-label="Galeri">🖼️ Galeri</button>
+    <button type="button" class="btn ghost export-pdf-btn" data-export-table="galeri" data-export-label="Galeri">📄 PDF Galeri</button>
+    <button type="button" class="btn ghost export-btn" data-export-table="kontak" data-export-label="Kontak">☎ Kontak</button>
+    <button type="button" class="btn ghost export-pdf-btn" data-export-table="kontak" data-export-label="Kontak">📄 PDF Kontak</button>
+  </div>
+  <div id="exportStatus" class="export-status">Siap mengekspor data.</div>
+  <div class="export-status" style="margin-top:6px">Untuk Kas Reuni, file PDF/Excel juga menyertakan ringkasan <b>Total Pemasukan</b>, <b>Total Pengeluaran</b>, dan <b>Sisa Saldo</b>.</div>
+</div>
 
+<div class="panel roadmap"><div class="panel-head"><h2>Status sistem</h2><span class="pill">Produksi • Supabase</span></div><div class="steps">
+<div class="done"><b>01</b><span>Website publik</span><small>Aktif</small></div><div class="done"><b>02</b><span>Database & autentikasi</span><small>Aktif</small></div><div class="done"><b>03</b><span>CRUD keluarga & silsilah</span><small>Aktif</small></div><div class="done"><b>04</b><span>Reuni, galeri & kas</span><small>Aktif</small></div>
+</div></div>
+<div class="admin-version">BANI MAD KAMARI • Admin Panel • V14.36 • Build 20260930</div></main>
+<script src="../assets/js/admin.js"></script>
+
+<style>
+.global-search-panel{margin-top:18px}.global-search-wrap{position:relative}.global-search-input{width:100%;box-sizing:border-box;padding:14px 46px 14px 16px;border:1px solid #dbe3ef;border-radius:14px;font:inherit;outline:none;background:#fff}.global-search-input:focus{border-color:#94a3b8;box-shadow:0 0 0 3px rgba(100,116,139,.10)}.global-search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);border:0;background:transparent;font-size:20px;cursor:pointer;color:#64748b;display:none}.global-search-results{margin-top:12px;display:grid;gap:8px}.global-search-result{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;text-decoration:none;color:inherit}.global-search-result:hover{background:#f8fafc}.global-search-result .result-icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:#f1f5f9;flex:0 0 34px}.global-search-result b{display:block}.global-search-result small{display:block;color:#64748b;margin-top:3px}.global-search-empty{padding:14px;color:#64748b;text-align:center}.global-search-meta{margin-top:7px;color:#64748b;font-size:13px}.admin-version{text-align:center;color:#94a3b8;font-size:12px;padding:20px 0 8px}
+</style>
+<style>
+.backup-panel .backup-box{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px;border:1px solid #dfe9e3;border-radius:16px;background:#f8fbf9}
+.backup-panel .backup-copy b{display:block;margin-bottom:5px}
+.backup-panel .backup-copy small{color:#64748b;line-height:1.5}
+.backup-status{margin-top:10px;color:#64748b;font-size:13px}
+@media(max-width:620px){.backup-panel .backup-box{flex-direction:column;align-items:stretch}.backup-panel .backup-box .btn{width:100%}}
+</style>
 <script>
-document.addEventListener("DOMContentLoaded", async function(){
-  const box=document.getElementById("public-gallery");
-  if(!box || !window.BMK?.cloud) return;
-  function isVideo(item){
-    const path=String(item?.image_path||"").toLowerCase();
-    const url=String(item?.image_url||"").toLowerCase().split("?")[0];
-    return /\.(mp4|webm|ogg|mov|m4v)$/i.test(path)|| /\.(mp4|webm|ogg|mov|m4v)$/i.test(url);
+(async function(){
+  const B=window.BMK;
+  const notice=document.getElementById("configNotice");
+  if(!B || !B.cloud || !B.supabase){
+    notice.style.display="block";
+  
+  document.getElementById("activity").innerHTML='<div class="activity-loading">Halaman admin aktif, tetapi Supabase belum terhubung.</div>';
+    document.getElementById("stats").classList.remove("dashboard-loading");
+    return;
   }
+  const ok=await B.requireAuth(["super_admin","admin","editor"]);
+  if(!ok)return;
+  const sb=B.supabase;
   try{
-    const {data,error}=await BMK.supabase.from("galeri")
-      .select("id,judul,image_url,image_path,keterangan,created_at")
-      .order("created_at",{ascending:false}).limit(12);
-    if(error)throw error;
-    if(!data||!data.length){box.innerHTML='<div class="gallery-item large"><span>Belum ada foto atau video di galeri.</span></div>';return;}
-    box.innerHTML=data.map((x,i)=>{
-      const title=BMK.escape(x.judul||"Kenangan keluarga");
-      const src=BMK.escape(x.image_url||"");
-      if(isVideo(x))return `<a class="gallery-item ${i===0?'large':''}" href="#" data-gallery-media="video" data-gallery-image="${src}" data-gallery-title="${title}" style="position:relative;display:flex;align-items:flex-end;text-decoration:none;">
-        <video class="gallery-media-video" src="${src}" muted playsinline preload="metadata"></video><span class="gallery-video-badge">▶ VIDEO</span>
-        <span style="position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,#000b);padding:28px 16px 14px;color:#fff;">${title}</span></a>`;
-      const bg=String(x.image_url||"").replace(/'/g,"\\'");
-      return `<a class="gallery-item ${i===0?'large':''}" href="#" data-gallery-media="image" data-gallery-image="${src}" data-gallery-title="${title}" style="background-image:url('${bg}');background-size:cover;background-position:center;display:flex;align-items:flex-end;text-decoration:none;">
-        <span style="background:linear-gradient(transparent,#000b);width:100%;padding:28px 16px 14px;color:#fff;">${title}</span></a>`;
-    }).join("");
-  }catch(e){console.error("Galeri publik:",e);box.innerHTML='<div class="gallery-item large"><span>Galeri belum dapat dimuat.</span></div>';}
-});
-</script>
-
-<script>
-document.addEventListener("DOMContentLoaded",function(){
-  const lightbox=document.getElementById("bmk-gallery-lightbox");
-  const image=document.getElementById("bmk-lightbox-image");
-  const video=document.getElementById("bmk-lightbox-video");
-  const caption=document.getElementById("bmk-lightbox-caption");
-  if(!lightbox||!image)return;
-  document.addEventListener("click",function(e){
-    const item=e.target.closest("#public-gallery [data-gallery-image]");
-    if(!item)return;
-    e.preventDefault();
-    const src=item.dataset.galleryImage||"",title=item.dataset.galleryTitle||"Kenangan keluarga",type=item.dataset.galleryMedia||"image";
-    image.style.display="none";image.removeAttribute("src");
-    if(video){video.pause();video.removeAttribute("src");video.load();video.style.display="none";}
-    if(type==="video"&&video){video.src=src;video.style.display="block";}
-    else{image.src=src;image.alt=title;image.style.display="block";}
-    if(caption)caption.textContent=title;
-    lightbox.classList.add("is-open");lightbox.setAttribute("aria-hidden","false");document.body.classList.add("bmk-lightbox-lock");
-  });
-  function closeLightbox(){
-    lightbox.classList.remove("is-open");lightbox.setAttribute("aria-hidden","true");
-    if(video){video.pause();video.removeAttribute("src");video.load();video.style.display="none";}
-    image.removeAttribute("src");image.style.display="none";document.body.classList.remove("bmk-lightbox-lock");
-  }
-  lightbox.querySelector(".bmk-lightbox-close")?.addEventListener("click",closeLightbox);
-  lightbox.addEventListener("click",e=>{if(e.target===lightbox)closeLightbox();});
-  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&lightbox.classList.contains("is-open"))closeLightbox();});
-});
-</script>
-
-<script>
-document.addEventListener("DOMContentLoaded", function(){
-  const yearEl=document.getElementById("site-year");
-  const versionEl=document.getElementById("site-version");
-  const buildEl=document.getElementById("site-build");
-  if(!versionEl || !buildEl) return;
-  // document.lastModified changes when the deployed index.html changes.
-  const d=new Date(document.lastModified);
-  if(!Number.isNaN(d.getTime())){
-    buildEl.textContent=d.toLocaleString("id-ID",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
-  }
-});
-</script>
-
-<script>
-document.addEventListener("DOMContentLoaded", async function(){
-  if(!window.BMK?.cloud) return;
-
-  // BERITA PUBLIK
-  try{
-    const {data,error}=await BMK.supabase.from("berita")
-      .select("id,judul,isi,tanggal,gambar_url,published,created_at")
-      .eq("published",true)
-      .order("tanggal",{ascending:false})
-      .limit(6);
-    if(error) throw error;
-    const box=document.getElementById("public-news");
-    if(box){
-      box.innerHTML=data?.length ? data.map(x=>`
-        <article class="news-card">
-          ${x.gambar_url?`<img src="${x.gambar_url}" alt="${BMK.escape(x.judul)}" style="width:100%;height:180px;object-fit:cover">`:''}
-          <div class="news-body">
-            <small>${x.tanggal||""}</small>
-            <h3>${BMK.escape(x.judul)}</h3>
-            <p>${BMK.escape((x.isi||"").replace(/<[^>]*>/g,"").slice(0,180))}${(x.isi||"").length>180?"…":""}</p>
-          </div>
-        </article>`).join("") : '<article class="news-card"><div class="news-body"><span>Belum ada berita.</span></div></article>';
+    const {data:{session}}=await sb.auth.getSession();
+    if(session){
+      const {data:p}=await sb.from("profiles").select("nama,role").eq("id",session.user.id).maybeSingle();
+      // Tampilan nama dashboard menggunakan nama profil yang valid.
+      // Jika field nama kosong atau berisi email, gunakan label berdasarkan role.
+      const rawName=String(p?.nama||"").trim();
+      const email=String(session.user.email||"").trim();
+      const looksLikeEmail=rawName.includes("@") && rawName.toLowerCase()===email.toLowerCase();
+      const roleLabel={
+        super_admin:"Administrator",
+        admin:"Admin",
+        editor:"Editor"
+      };
+      const displayName=(!rawName || looksLikeEmail)
+        ? (roleLabel[p?.role] || "Administrator")
+        : rawName;
+      document.getElementById("adminName").textContent=displayName;
     }
-  }catch(e){console.error("Berita publik:",e)}
+  }catch(e){}
+  const esc=B.escape;
+  // Ulang tahun keluarga — hanya membaca data yang sudah ada.
+  async function loadBirthdays(){
+    const box=document.getElementById("birthdayList");
+    const summary=document.getElementById("birthdaySummary");
+    try{
+      const res=await sb.from("anggota_keluarga").select("*");
+      if(res.error) throw res.error;
+      const rows=res.data||[];
+      const candidates=[];
+      const today=new Date();
+      today.setHours(0,0,0,0);
+      const currentYear=today.getFullYear();
 
-  // AGENDA PUBLIK
-  try{
-    const {data,error}=await BMK.supabase.from("agenda")
-      .select("id,judul,tanggal,waktu,tempat,keterangan")
-      .order("tanggal",{ascending:true})
-      .limit(8);
-    if(error) throw error;
-    const box=document.getElementById("public-agenda");
-    if(box){
-      box.innerHTML=data?.length ? data.map(x=>`
-        <div class="agenda-item">
-          <div class="agenda-date"><b>${x.tanggal?new Date(x.tanggal+"T00:00:00").getDate():"-"}</b><small>${x.tanggal?new Date(x.tanggal+"T00:00:00").toLocaleDateString("id-ID",{month:"short"}):""}</small></div>
-          <div><h3>${BMK.escape(x.judul)}</h3><p>${BMK.escape([x.waktu,x.tempat].filter(Boolean).join(" · "))}</p><small>${BMK.escape(x.keterangan||"")}</small></div>
-        </div>`).join("") : '<div class="agenda-item"><div><b>Belum ada agenda.</b></div></div>';
-    }
-  }catch(e){console.error("Agenda publik:",e)}
-
-  // DETAIL + COUNTDOWN REUNI PUBLIK — V14.17
-  // Sumber tunggal: tabel agenda Supabase.
-  // Countdown dihitung dalam WIB (UTC+7), sehingga tidak tergantung timezone komputer.
-  let reunionTimer=null;
-  try{
-    const {data,error}=await BMK.supabase
-      .from("agenda")
-      .select("id,judul,tanggal,waktu,tempat,keterangan,alamat_reuni,maps_url,is_reuni_utama")
-      .order("tanggal",{ascending:true})
-      .order("waktu",{ascending:true});
-    if(error) throw error;
-
-    const parseWibDateTime=(dateValue,timeValue)=>{
-      if(!dateValue) return null;
-
-      const ds=String(dateValue).trim().slice(0,10);
-      const dp=ds.split("-").map(Number);
-      if(dp.length!==3 || dp.some(n=>!Number.isFinite(n))) return null;
-      const [year,month,day]=dp;
-      if(year<2000 || month<1 || month>12 || day<1 || day>31) return null;
-
-      let ts=String(timeValue||"00:00").trim().toLowerCase()
-        .replace(/\b(wib|wit|wita)\b/g,"")
-        .trim()
-        .replace(/\./g,":");
-
-      let ampm="";
-      const ap=ts.match(/\b(am|pm)\b/);
-      if(ap){
-        ampm=ap[1];
-        ts=ts.replace(/\b(am|pm)\b/g,"").trim();
-      }
-
-      const m=ts.match(/^(\d{1,2})(?::(\d{1,2}))?(?::(\d{1,2}))?/);
-      if(!m) return null;
-
-      let hh=Number(m[1]);
-      const mm=m[2]!==undefined ? Number(m[2]) : 0;
-      const ss=m[3]!==undefined ? Number(m[3]) : 0;
-
-      if(ampm==="pm" && hh<12) hh+=12;
-      if(ampm==="am" && hh===12) hh=0;
-      if(hh>23 || mm>59 || ss>59) return null;
-
-      // WIB = UTC+07:00. Gunakan UTC agar hasil sama di semua komputer/HP.
-      const ms=Date.UTC(year,month-1,day,hh,mm,ss)-7*60*60*1000;
-      const d=new Date(ms);
-      return Number.isFinite(d.getTime()) ? d : null;
-    };
-
-    const rows=(Array.isArray(data)?data:[])
-      .map(x=>({...x,target:parseWibDateTime(x.tanggal,x.waktu)}))
-      .filter(x=>x.target);
-
-    const nowMs=Date.now();
-
-    // Hanya jadwal yang benar-benar masih akan datang.
-    const future=rows
-      .filter(x=>x.target.getTime()>nowMs)
-      .sort((a,b)=>a.target.getTime()-b.target.getTime());
-
-    // Jika ada Reuni Utama yang akan datang, gunakan itu.
-    // Jika tidak, gunakan jadwal reuni terdekat yang akan datang.
-    const futureMain=future.filter(x=>x.is_reuni_utama===true || x.is_reuni_utama==="true");
-    const ev=futureMain[0] || future[0] || null;
-
-    const dateEl=document.getElementById("eventDate");
-    const timeEl=document.getElementById("eventTime");
-    const placeEl=document.getElementById("eventPlace");
-    const addressEl=document.getElementById("eventAddress");
-    const descEl=document.getElementById("eventDescription");
-    const mapEl=document.getElementById("eventMap");
-    const mapBox=document.getElementById("eventMapBox");
-
-    const fmtDate=v=>{
-      if(!v) return "Belum diatur";
-      const ds=String(v).slice(0,10);
-      const p=ds.split("-").map(Number);
-      if(p.length!==3 || p.some(n=>!Number.isFinite(n))) return "Belum diatur";
-      // Format berdasarkan kalender WIB, bukan timezone browser.
-      const d=new Date(Date.UTC(p[0],p[1]-1,p[2],12,0,0));
-      return d.toLocaleDateString("id-ID",{
-        timeZone:"Asia/Jakarta",
-        weekday:"long",day:"numeric",month:"long",year:"numeric"
-      });
-    };
-
-    const fmtTime=v=>{
-      const raw=String(v||"").trim()
-        .replace(/\b(wib|wit|wita)\b/ig,"")
-        .trim().replace(/\./g,":");
-      return raw ? raw+" WIB" : "Belum diatur";
-    };
-
-    const setCountdown=(days,hours,mins,secs)=>{
-      const vals=[
-        ["days",days],
-        ["hours",hours],
-        ["mins",mins],
-        ["secs",secs]
-      ];
-      vals.forEach(([id,n])=>{
-        const el=document.getElementById(id);
-        if(!el) return;
-        const value=String(n).padStart(2,"0");
-        // Jangan menulis ulang DOM jika nilainya belum berubah.
-        if(el.textContent!==value) el.textContent=value;
-      });
-    };
-
-    const clearCountdown=()=>{
-      if(reunionTimer){
-        clearInterval(reunionTimer);
-        reunionTimer=null;
-      }
-      setCountdown(0,0,0,0);
-    };
-
-    if(ev){
-      console.info("[BMK V14.17] Jadwal countdown:",{
-        id:ev.id,
-        judul:ev.judul,
-        tanggal:ev.tanggal,
-        waktu:ev.waktu,
-        targetWIB:ev.target.toISOString(),
-        utama:ev.is_reuni_utama
-      });
-
-      if(dateEl) dateEl.textContent=fmtDate(ev.tanggal);
-      if(timeEl) timeEl.textContent=fmtTime(ev.waktu);
-      if(placeEl) placeEl.textContent=String(ev.tempat||"Belum diatur");
-      if(addressEl) addressEl.textContent=String(ev.alamat_reuni||"Belum diatur");
-      if(descEl) descEl.textContent=String(ev.keterangan||"Tidak ada keterangan tambahan.");
-
-      let raw=String(ev.maps_url||"").trim();
-      let url="";
-      if(raw){
-        if(/^https?:\/\//i.test(raw)) url=raw;
-        else if(/^www\./i.test(raw)) url="https://"+raw;
-        else if(/^maps\./i.test(raw)) url="https://"+raw;
-        else url="https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(raw);
-      }else{
-        const query=[ev.tempat,ev.alamat_reuni].filter(Boolean).join(", ");
-        if(query) url="https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(query);
-      }
-
-      if(mapEl && mapBox){
-        if(url){
-          mapEl.setAttribute("href",url);
-          mapEl.setAttribute("target","_blank");
-          mapEl.setAttribute("rel","noopener noreferrer");
-          mapBox.hidden=false;
-        }else{
-          mapEl.removeAttribute("href");
-          mapBox.hidden=true;
-        }
-      }
-
-      clearCountdown();
-      const targetMs=ev.target.getTime();
-      let lastSecond=-1;
-
-      const tick=()=>{
-        const diff=targetMs-Date.now();
-
-        if(diff<=0){
-          setCountdown(0,0,0,0);
-          if(reunionTimer){
-            clearInterval(reunionTimer);
-            reunionTimer=null;
-          }
-          // Jadwal sudah lewat. Reload data setelah jeda singkat agar
-          // countdown otomatis berpindah ke agenda berikutnya.
-          setTimeout(()=>window.location.reload(),1500);
-          return;
-        }
-
-        const total=Math.floor(diff/1000);
-
-        // Update DOM hanya sekali untuk setiap perubahan detik.
-        if(total===lastSecond) return;
-        lastSecond=total;
-
-        setCountdown(
-          Math.floor(total/86400),
-          Math.floor((total%86400)/3600),
-          Math.floor((total%3600)/60),
-          total%60
-        );
+      const getName=row=>{
+        return String(row.nama||row.nama_lengkap||row.name||"Tanpa nama").trim();
+      };
+      const getBirth=row=>{
+        const v=row.tanggal_lahir ?? row.tgl_lahir ?? row.birth_date ?? row.birthdate ?? row.tanggalLahir;
+        if(!v) return null;
+        const s=String(v).trim();
+        const m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+        if(m) return {month:Number(m[2]),day:Number(m[3]),raw:s};
+        const d=new Date(s);
+        if(!Number.isNaN(d.getTime())) return {month:d.getMonth()+1,day:d.getDate(),raw:s};
+        return null;
       };
 
-      tick();
-      reunionTimer=setInterval(tick,1000);
+      for(const row of rows){
+        const b=getBirth(row);
+        if(!b || !b.month || !b.day) continue;
+        let next=new Date(currentYear,b.month-1,b.day);
+        if(next<today) next=new Date(currentYear+1,b.month-1,b.day);
+        const diff=Math.round((next-today)/86400000);
+        if(diff<=30) candidates.push({row,next,diff,name:getName(row),birth:b});
+      }
 
-      // Saat tab kembali aktif, langsung sinkronkan countdown.
-      document.addEventListener("visibilitychange",()=>{
-        if(!document.hidden) tick();
+      candidates.sort((a,b)=>a.next-b.next);
+      const visible=candidates.slice(0,8);
+
+      if(!visible.length){
+        summary.textContent="30 hari ke depan";
+        box.innerHTML='<div class="birthday-empty">Tidak ada ulang tahun dalam 30 hari ke depan.</div>';
+        return;
+      }
+
+      summary.textContent=visible.length+" ulang tahun terdekat";
+      box.innerHTML=visible.map(item=>{
+        const date=item.next.toLocaleDateString("id-ID",{day:"2-digit",month:"short"});
+        let when=item.diff===0?"Hari ini":(item.diff===1?"Besok":"Dalam "+item.diff+" hari");
+        return `<div class="birthday-item">
+          <div class="birthday-avatar">🎂</div>
+          <div class="birthday-info"><b>${esc(item.name)}</b><small>${when}</small></div>
+          <div class="birthday-date">${date}</div>
+        </div>`;
+      }).join("");
+    }catch(err){
+      console.error("Ulang tahun:",err);
+      summary.textContent="Tidak tersedia";
+      box.innerHTML='<div class="birthday-empty">Data ulang tahun belum dapat dimuat.</div>';
+    }
+  }
+  loadBirthdays();
+
+  // Pencarian Global Admin V14.36 — hanya membaca data yang dapat diakses akun admin.
+  const globalSearchSources=[
+    {table:"anggota_keluarga",label:"Data Keluarga",icon:"👥",href:"keluarga.html",nameKeys:["nama","nama_lengkap","name"],detailKeys:["nik","hubungan","gender","alamat"]},
+    {table:"pengurus",label:"Pengurus",icon:"👔",href:"pengurus.html",nameKeys:["nama","nama_lengkap","name","jabatan"],detailKeys:["jabatan","kontak","telepon","no_hp","email"]},
+    {table:"kontak",label:"Kontak",icon:"☎",href:"kontak.html",nameKeys:["nama","nama_lengkap","name","judul"],detailKeys:["telepon","no_hp","email","keterangan"]},
+    {table:"agenda",label:"Reuni",icon:"📅",href:"reuni.html",nameKeys:["judul","nama","name"],detailKeys:["tanggal","waktu","lokasi","deskripsi"]},
+    {table:"berita",label:"Berita",icon:"📰",href:"berita.html",nameKeys:["judul","title","nama","name"],detailKeys:["tanggal","kategori","ringkasan","deskripsi"]}
+  ];
+  const globalSearchInput=document.getElementById("globalSearchInput"), globalSearchResults=document.getElementById("globalSearchResults"), globalSearchSummary=document.getElementById("globalSearchSummary"), globalSearchClear=document.getElementById("globalSearchClear");
+  let globalSearchCache=[], globalSearchLoaded=false;
+  const pickValue=(row,keys)=>{for(const key of keys){const v=row?.[key];if(v!==undefined&&v!==null&&String(v).trim()!=="")return String(v).trim();}return "";};
+  const buildDetail=(row,keys)=>{const vals=[];for(const key of keys){const v=row?.[key];if(v!==undefined&&v!==null&&String(v).trim()!=="")vals.push(String(v).trim());if(vals.length>=3)break;}return vals.join(" • ");};
+  async function loadGlobalSearchData(){
+    if(globalSearchLoaded)return; globalSearchLoaded=true;
+    const all=[];
+    for(const src of globalSearchSources){try{const r=await sb.from(src.table).select("*").limit(200);if(r.error)continue;for(const row of (r.data||[])){const name=pickValue(row,src.nameKeys);const raw=Object.values(row||{}).filter(v=>v!==null&&v!==undefined).join(" ");all.push({label:src.label,icon:src.icon,href:src.href,name:name||src.label,detail:buildDetail(row,src.detailKeys),text:(name+" "+raw).toLowerCase()});}}catch(e){console.warn("Global search",src.table,e);}}
+    globalSearchCache=all; globalSearchSummary.textContent=all.length+" data siap dicari";
+  }
+  function renderGlobalSearch(q){
+    const query=String(q||"").trim().toLowerCase(); globalSearchClear.style.display=query?"block":"none";
+    if(!query){globalSearchResults.innerHTML="";globalSearchSummary.textContent=globalSearchLoaded?(globalSearchCache.length+" data siap dicari"):"Ketik untuk mencari";return;}
+    const words=query.split(/\s+/).filter(Boolean), hits=globalSearchCache.filter(item=>words.every(w=>item.text.includes(w))).slice(0,20);
+    globalSearchSummary.textContent=hits.length+" hasil";
+    if(!hits.length){globalSearchResults.innerHTML='<div class="global-search-empty">Tidak ada data yang cocok.</div>';return;}
+    globalSearchResults.innerHTML=hits.map(item=>`<a class="global-search-result" href="${item.href}"><span class="result-icon">${item.icon}</span><span><b>${esc(item.name)}</b><small>${esc(item.label)}${item.detail?" • "+esc(item.detail):""}</small></span></a>`).join("");
+  }
+  globalSearchInput?.addEventListener("focus",()=>loadGlobalSearchData().then(()=>renderGlobalSearch(globalSearchInput.value)));
+  globalSearchInput?.addEventListener("input",()=>loadGlobalSearchData().then(()=>renderGlobalSearch(globalSearchInput.value)));
+  globalSearchClear?.addEventListener("click",()=>{globalSearchInput.value="";renderGlobalSearch("");globalSearchInput.focus();});
+
+  const money=n=>Number(n||0).toLocaleString("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0});
+  const count=async t=>{const r=await sb.from(t).select("*",{count:"exact",head:true});if(r.error)throw r.error;return r.count||0};
+  try{
+    const [f,r,g]=await Promise.all([count("anggota_keluarga"),count("rsvp"),count("galeri")]);
+    document.getElementById("familyCount").textContent=f.toLocaleString("id-ID");
+    document.getElementById("rsvpCount").textContent=r.toLocaleString("id-ID");
+    document.getElementById("galleryCount").textContent=g.toLocaleString("id-ID");
+    document.getElementById("familyMeta").textContent="Data keluarga tersimpan";
+    document.getElementById("rsvpMeta").textContent="Total konfirmasi masuk";
+    document.getElementById("galleryMeta").textContent="Foto/album tersimpan";
+
+    // Statistik anggota dihitung dari data yang sama dengan menu Data Keluarga.
+    const members=await sb.from("anggota_keluarga").select("gender");
+    if(members.error) throw members.error;
+    const rows=members.data||[];
+    const male=rows.filter(x=>x.gender==="L").length;
+    const female=rows.filter(x=>x.gender==="P").length;
+    document.getElementById("memberCount").textContent=rows.length.toLocaleString("id-ID");
+    document.getElementById("maleCount").textContent=male.toLocaleString("id-ID");
+    document.getElementById("femaleCount").textContent=female.toLocaleString("id-ID");
+    document.getElementById("memberMeta").textContent="Semua anggota keluarga";
+    document.getElementById("maleMeta").textContent="Laki-laki";
+    document.getElementById("femaleMeta").textContent="Perempuan";
+
+    // Jadwal Reuni berikutnya menggunakan tabel agenda yang sama dengan countdown publik.
+    const now=new Date();
+    const today=now.toISOString().slice(0,10);
+    const rr=await sb.from("agenda").select("judul,tanggal,waktu,is_reuni_utama").gte("tanggal",today).order("tanggal",{ascending:true}).order("waktu",{ascending:true}).limit(1);
+    if(rr.error) throw rr.error;
+    const reunion=rr.data?.[0];
+    if(reunion){
+      const d=new Date(`${reunion.tanggal}T00:00:00`);
+      const dateText=d.toLocaleDateString("id-ID",{day:"2-digit",month:"short",year:"numeric"});
+      document.getElementById("nextReunion").textContent=dateText;
+      document.getElementById("nextReunionMeta").textContent=String(reunion.judul||"Reuni berikutnya");
+    }else{
+      document.getElementById("nextReunion").textContent="—";
+      document.getElementById("nextReunionMeta").textContent="Belum ada jadwal";
+    }
+    const k=await sb.from("kas").select("jenis,nominal");
+    if(k.error)throw k.error;
+    const bal=(k.data||[]).reduce((s,x)=>s+(x.jenis==="masuk"?Number(x.nominal||0):-Number(x.nominal||0)),0);
+    document.getElementById("kasBalance").textContent=money(bal);
+    document.getElementById("kasMeta").textContent=(k.data||[]).length+" transaksi";
+    document.getElementById("stats").classList.remove("dashboard-loading");
+  }catch(e){
+    console.error(e);B.toast("Dashboard terhubung ke Supabase, tetapi sebagian data gagal dimuat.","error");
+    document.getElementById("stats").classList.remove("dashboard-loading");
+  }
+  document.getElementById("activity").innerHTML='<div class="activity-loading">Dashboard aktif dan terhubung ke Supabase.</div>';
+})();
+
+  const backupBtn=document.getElementById("backupBtn");
+  if(backupBtn){
+    backupBtn.addEventListener("click", async ()=>{
+      const status=document.getElementById("backupStatus");
+      backupBtn.disabled=true;
+      backupBtn.textContent="⏳ Menyiapkan…";
+      status.textContent="Mengambil data yang tersedia…";
+      try{
+        const tables=[
+          ["anggota_keluarga","Data Keluarga"],
+          ["agenda","Reuni"],
+          ["kas","Kas Reuni"]
+        ];
+        const backup={
+          aplikasi:"BANI MAD KAMARI",
+          versi:document.body.dataset.bmkVersion||"V14.36",
+          dibuat_pada:new Date().toISOString(),
+          catatan:"Backup dibuat dari Dashboard Admin. Tidak mengubah data Supabase.",
+          data:{}
+        };
+        // Gunakan client Supabase global karena `sb` berada di scope IIFE dashboard.
+        const backupSupabase=window.BMK?.supabase;
+        if(!backupSupabase) throw new Error("Koneksi Supabase belum tersedia.");
+        for(const [table,label] of tables){
+          const res=await backupSupabase.from(table).select("*");
+          if(res.error) throw new Error(label+": "+res.error.message);
+          backup.data[table]=res.data||[];
+        }
+        const blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json;charset=utf-8"});
+        const url=URL.createObjectURL(blob);
+        const a=document.createElement("a");
+        const stamp=new Date().toISOString().replace(/[:.]/g,"-");
+        a.href=url;
+        a.download="BMK-backup-"+stamp+".json";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        status.textContent="Backup berhasil dibuat dan diunduh ke komputer Anda.";
+      }catch(err){
+        console.error("Backup error:",err);
+        status.textContent="Backup gagal: "+(err.message||"Terjadi kesalahan.");
+      }finally{
+        backupBtn.disabled=false;
+        backupBtn.textContent="⬇ Unduh Backup JSON";
+      }
+    });
+  }
+
+</script>
+
+<script>
+(function(){
+  const buttons=[...document.querySelectorAll(".export-btn")];
+  const status=document.getElementById("exportStatus");
+  if(!buttons.length) return;
+
+  const escapeCsv=(value)=>{
+    if(value===null || value===undefined) return "";
+    let str="";
+    if(typeof value==="object"){
+      try{str=JSON.stringify(value)}catch(_){str=String(value)}
+    }else{
+      str=String(value);
+    }
+    return /[",\r\n]/.test(str) ? '"' + str.replace(/"/g,'""') + '"' : str;
+  };
+
+  const flatten=(obj)=>{
+    const out={};
+    for(const [k,v] of Object.entries(obj||{})){
+      out[k]=typeof v==="object" && v!==null ? JSON.stringify(v) : v;
+    }
+    return out;
+  };
+
+  const downloadCsv=(rows,label,table)=>{
+    const flatRows=(rows||[]).map(flatten);
+    const keys=[...new Set(flatRows.flatMap(r=>Object.keys(r)))];
+    if(!keys.length) throw new Error("Tidak ada data untuk diekspor.");
+    const lines=[keys.map(escapeCsv).join(",")];
+    for(const row of flatRows){
+      lines.push(keys.map(k=>escapeCsv(row[k])).join(","));
+    }
+
+    // Khusus Kas Reuni: tambahkan ringkasan untuk kebutuhan Excel/CSV.
+    if(table==="kas"){
+      const sum=window.BMKKasExport?.summarize(rows||[])||{pemasukan:0,pengeluaran:0,saldo:0};
+      lines.push("");
+      lines.push([escapeCsv("RINGKASAN KAS REUNI")].join(","));
+      lines.push([escapeCsv("Total Pemasukan"), escapeCsv(window.BMKKasExport.rupiah(sum.pemasukan))].join(","));
+      lines.push([escapeCsv("Total Pengeluaran"), escapeCsv(window.BMKKasExport.rupiah(sum.pengeluaran))].join(","));
+      lines.push([escapeCsv("Sisa Saldo"), escapeCsv(window.BMKKasExport.rupiah(sum.saldo))].join(","));
+    }
+
+    const csv="\uFEFF"+lines.join("\r\n");
+    const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    const stamp=new Date().toISOString().replace(/[:.]/g,"-");
+    a.href=url;
+    a.download="BMK-"+table+"-"+stamp+".csv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    status.textContent=`✅ ${label}: ${flatRows.length.toLocaleString("id-ID")} baris berhasil diekspor.`;
+  };
+
+  buttons.forEach(btn=>{
+    btn.addEventListener("click", async ()=>{
+      const table=btn.dataset.exportTable;
+      const label=btn.dataset.exportLabel||table;
+      const client=window.BMK?.supabase;
+      if(!client){
+        status.textContent="❌ Koneksi Supabase belum tersedia.";
+        return;
+      }
+      const original=btn.textContent;
+      buttons.forEach(b=>b.disabled=true);
+      btn.textContent="⏳ Menyiapkan…";
+      status.textContent=`Mengambil data ${label}…`;
+      try{
+        const {data,error}=await client.from(table).select("*");
+        if(error) throw new Error(error.message);
+        downloadCsv(data||[],label,table);
+      }catch(err){
+        console.error("Export CSV:",err);
+        status.textContent=`❌ Export ${label} gagal: ${err.message||"Terjadi kesalahan."}`;
+      }finally{
+        buttons.forEach((b,i)=>{b.disabled=false; b.textContent=b===btn ? original : b.textContent});
+      }
+    });
+  });
+})();
+</script>
+
+
+<script>
+(function(){
+  const buttons = [...document.querySelectorAll(".export-pdf-btn")];
+  if(!buttons.length) return;
+
+  const fieldLabels = {
+    nama:"Nama", nama_lengkap:"Nama Lengkap", panggilan:"Panggilan",
+    gender:"Jenis Kelamin", jenis_kelamin:"Jenis Kelamin", generasi:"Generasi",
+    tempat_lahir:"Tempat Lahir", tanggal_lahir:"Tanggal Lahir", tgl_lahir:"Tanggal Lahir",
+    alamat:"Alamat", no_hp:"No. HP", whatsapp:"WhatsApp", email:"Email",
+    jabatan:"Jabatan", bio:"Keterangan", urutan:"Urutan", aktif:"Status",
+    judul:"Judul", isi:"Isi", tanggal:"Tanggal", waktu:"Waktu", tempat:"Tempat",
+    alamat_reuni:"Alamat", keterangan:"Keterangan", status:"Status",
+    jumlah:"Jumlah", hp:"No. HP", catatan:"Catatan", jenis:"Jenis",
+    nominal:"Nominal", gambar_url:"Foto", image_url:"Foto", published:"Terbit"
+  };
+
+  const excluded = new Set([
+    "id","created_at","updated_at","user_id","anggota_id",
+    "ayah_id","ibu_id","pasangan_id"
+  ]);
+
+  const labelFor = key => fieldLabels[key] || String(key)
+    .replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase());
+
+  function formatValue(key, value){
+    if(value === null || value === undefined || value === "") return "-";
+
+    if(["gambar_url","image_url"].includes(key)){
+      return value ? "Tersedia" : "-";
+    }
+
+    if(key === "nominal"){
+      const n = Number(value);
+      if(Number.isFinite(n)){
+        return new Intl.NumberFormat("id-ID", {
+          style:"currency", currency:"IDR", maximumFractionDigits:0
+        }).format(n);
+      }
+    }
+
+    if(["tanggal_lahir","tgl_lahir","tanggal"].includes(key)){
+      const d = new Date(value);
+      if(!Number.isNaN(d.getTime())){
+        return d.toLocaleDateString("id-ID", {
+          day:"2-digit", month:"long", year:"numeric"
+        });
+      }
+    }
+
+    if(["created_at","updated_at"].includes(key)){
+      const d = new Date(value);
+      if(!Number.isNaN(d.getTime())){
+        return d.toLocaleString("id-ID", {
+          day:"2-digit", month:"long", year:"numeric",
+          hour:"2-digit", minute:"2-digit"
+        });
+      }
+    }
+
+    if(typeof value === "boolean") return value ? "Ya" : "Tidak";
+
+    if(typeof value === "object"){
+      try { return JSON.stringify(value); } catch(_) { return String(value); }
+    }
+
+    return String(value);
+  }
+
+  function columnsFor(rows, table){
+    const present = [...new Set((rows || []).flatMap(r => Object.keys(r || {})))];
+
+    // PDF Data Keluarga sengaja dibuat sebagai laporan ringkas yang mudah dibaca.
+    // Kolom teknis (UUID, URL foto/maps, path, timestamp, relasi internal, dll.)
+    // tidak dimasukkan ke PDF; Excel/CSV tetap menyimpan data lengkap.
+    if(table==="anggota_keluarga"){
+      const familyPreferred=[
+        "nama",
+        "panggilan",
+        "gender",
+        "jenis_kelamin",
+        "generasi",
+        "tempat_lahir",
+        "tanggal_lahir",
+        "alamat",
+        "no_hp"
+      ];
+      return familyPreferred.filter(k => present.includes(k) && !excluded.has(k));
+    }
+
+    const preferred = {
+      agenda:["judul","tanggal","waktu","tempat","alamat_reuni","keterangan"],
+      rsvp:["nama","status","jumlah","hp","catatan"],
+      kas:["tanggal","jenis","nominal","keterangan"],
+      pengurus:["nama","jabatan","bio","no_hp","whatsapp","email","urutan","aktif"],
+      berita:["judul","tanggal","isi","published"],
+      galeri:["judul","keterangan","image_url"],
+      kontak:["nama","jabatan","no_hp","whatsapp","email","alamat","keterangan"]
+    }[table] || present;
+
+    const selected = preferred.filter(k => present.includes(k) && !excluded.has(k));
+    const remaining = present.filter(k =>
+      !selected.includes(k) &&
+      !excluded.has(k) &&
+      !["password","token","secret"].some(x => k.toLowerCase().includes(x))
+    );
+
+    return [...selected, ...remaining];
+  }
+
+  function trimCell(value){
+    const s = String(value ?? "");
+    return s.length > 120 ? s.slice(0,117) + "..." : s;
+  }
+
+  async function exportPdf(rows, label, table){
+    if(!window.jspdf || !window.jspdf.jsPDF) {
+      throw new Error("Library PDF belum termuat. Muat ulang halaman lalu coba lagi.");
+    }
+    if(!rows.length) throw new Error("Tidak ada data untuk diekspor.");
+
+    const {jsPDF} = window.jspdf;
+    const landscape = ["anggota_keluarga","pengurus","kontak","rsvp","kas"].includes(table);
+
+    const doc = new jsPDF({
+      orientation: landscape ? "landscape" : "portrait",
+      unit: "mm",
+      format: "a4"
+    });
+
+    const width = doc.internal.pageSize.getWidth();
+    const height = doc.internal.pageSize.getHeight();
+    const margin = 12;
+    const now = new Date();
+
+    doc.setFont("helvetica","bold");
+    doc.setFontSize(16);
+    doc.text("BANI MAD KAMARI", margin, 15);
+
+    doc.setFont("helvetica","normal");
+    doc.setFontSize(10);
+    doc.text("Laporan " + label, margin, 21);
+    doc.text(
+      "Dibuat: " + now.toLocaleString("id-ID", {
+        day:"2-digit", month:"long", year:"numeric",
+        hour:"2-digit", minute:"2-digit"
+      }),
+      margin, 27
+    );
+    doc.text(
+      "Total data: " + rows.length.toLocaleString("id-ID"),
+      width - margin, 21, {align:"right"}
+    );
+
+    let tableStartY = 33;
+
+    if(table==="anggota_keluarga"){
+      doc.setFont("helvetica","normal");
+      doc.setFontSize(8);
+      doc.text("Laporan ringkas keluarga • Kolom teknis/URL tidak ditampilkan", margin, 32);
+      tableStartY = 38;
+    }
+
+    if(table==="kas"){
+      const sum=window.BMKKasExport?.summarize(rows||[])||{pemasukan:0,pengeluaran:0,saldo:0};
+      doc.setFont("helvetica","bold");
+      doc.setFontSize(9);
+      doc.text("Ringkasan Kas Reuni", margin, 34);
+
+      const boxes = [
+        ["Total Pemasukan", window.BMKKasExport.rupiah(sum.pemasukan)],
+        ["Total Pengeluaran", window.BMKKasExport.rupiah(sum.pengeluaran)],
+        ["Sisa Saldo", window.BMKKasExport.rupiah(sum.saldo)]
+      ];
+      const gap = 4;
+      const boxW = (width - (margin*2) - (gap*2)) / 3;
+      const boxY = 38;
+      boxes.forEach((item, i)=>{
+        const x = margin + i*(boxW+gap);
+        doc.setDrawColor(220,228,223);
+        doc.setFillColor(250,253,252);
+        doc.roundedRect(x, boxY, boxW, 13, 2, 2, "FD");
+        doc.setFont("helvetica","normal");
+        doc.setFontSize(7);
+        doc.text(item[0], x+3, boxY+5);
+        doc.setFont("helvetica","bold");
+        doc.setFontSize(9);
+        doc.text(item[1], x+3, boxY+10);
+      });
+      tableStartY = 56;
+    }
+
+    const columns = columnsFor(rows, table);
+    const isFamily = table==="anggota_keluarga";
+
+    const head = [[
+      ...(isFamily ? ["No"] : []),
+      ...columns.map(key => isFamily && key==="gender" ? "Jenis Kelamin" :
+                           (isFamily && key==="jenis_kelamin" ? "Jenis Kelamin" : labelFor(key)))
+    ]];
+
+    const body = rows.map((row,index) => [
+      ...(isFamily ? [String(index+1)] : []),
+      ...columns.map(key => trimCell(formatValue(key, row[key])))
+    ]);
+
+    const columnStyles = {};
+    if(isFamily){
+      // Lebar tetap membuat header Data Keluarga jauh lebih stabil di A4 landscape.
+      // Urutan: No, Nama, Panggilan, JK, Gen., Tempat Lahir, Tgl Lahir, Alamat, No. HP
+      const familyWidths = [10,42,28,20,18,29,32,72,22];
+      familyWidths.forEach((w,i)=>{
+        if(i < head[0].length) columnStyles[i]={cellWidth:w};
       });
     }else{
-      clearCountdown();
-      if(dateEl) dateEl.textContent="Belum ada jadwal reuni";
-      if(timeEl) timeEl.textContent="Belum diatur";
-      if(placeEl) placeEl.textContent="Belum diatur";
-      if(addressEl) addressEl.textContent="Belum diatur";
-      if(descEl) descEl.textContent="Atur Reuni melalui Dashboard Admin → Reuni.";
-      if(mapBox) mapBox.hidden=true;
-      console.warn("[BMK V14.17] Tidak ada agenda reuni mendatang.");
+      columnStyles[0]={cellWidth:"auto"};
     }
-  }catch(e){
-    console.error("[BMK V14.17] Gagal membaca agenda:",e);
-    if(reunionTimer){clearInterval(reunionTimer);reunionTimer=null;}
-    const dateEl=document.getElementById("eventDate");
-    const timeEl=document.getElementById("eventTime");
-    const placeEl=document.getElementById("eventPlace");
-    const addressEl=document.getElementById("eventAddress");
-    const descEl=document.getElementById("eventDescription");
-    const mapBox=document.getElementById("eventMapBox");
-    if(dateEl) dateEl.textContent="Belum dapat memuat jadwal";
-    if(timeEl) timeEl.textContent="Belum diatur";
-    if(placeEl) placeEl.textContent="Belum diatur";
-    if(addressEl) addressEl.textContent="Belum diatur";
-    if(descEl) descEl.textContent="Data reuni belum dapat dibaca dari database.";
-    if(mapBox) mapBox.hidden=true;
+
+    doc.autoTable({
+      startY: tableStartY,
+      head,
+      body,
+      margin: {left:margin, right:margin, top:tableStartY, bottom:14},
+      theme: "grid",
+      showHead: "everyPage",
+      styles: {
+        font:"helvetica",
+        fontSize:isFamily ? 8 : 7.3,
+        cellPadding:isFamily ? 2.4 : 2.1,
+        overflow:"linebreak",
+        valign:"middle",
+        lineWidth:0.25
+      },
+      headStyles: {
+        font:"helvetica",
+        fontStyle:"bold",
+        fontSize:isFamily ? 8.2 : 7.4,
+        halign:"center",
+        valign:"middle",
+        minCellHeight:isFamily ? 9 : undefined
+      },
+      bodyStyles: {
+        halign:"left"
+      },
+      columnStyles,
+      didParseCell: function(data){
+        if(isFamily && data.section==="body" && (data.column.index===3 || data.column.index===4)){
+          data.cell.styles.halign="center";
+        }
+      },
+      didDrawPage: function(){
+        const page = doc.getNumberOfPages();
+        doc.setFont("helvetica","normal");
+        doc.setFontSize(8);
+        doc.text("BANI MAD KAMARI - V14.36", margin, height - 7);
+        doc.text("Halaman " + page, width - margin, height - 7, {align:"right"});
+      }
+    });
+
+    const stamp = now.toISOString().replace(/[:.]/g,"-");
+    doc.save("BMK-" + table + "-" + stamp + ".pdf");
   }
 
+  buttons.forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const table = btn.dataset.exportTable;
+      const label = btn.dataset.exportLabel || table;
+      const client = window.BMK?.supabase;
+      const original = btn.textContent;
 
-});
-</script>
+      if(!client){
+        if(window.BMK?.toast) BMK.toast("Koneksi Supabase belum tersedia.","error");
+        else alert("Koneksi Supabase belum tersedia.");
+        return;
+      }
 
+      try{
+        btn.disabled = true;
+        btn.textContent = "⏳ Menyiapkan PDF...";
 
-<script>
-document.addEventListener("DOMContentLoaded", async function(){
-  if(!window.BMK?.cloud) return;
+        const {data,error} = await client.from(table).select("*");
+        if(error) throw new Error(error.message);
 
-  // RSVP/PENDAFTARAN PUBLIK — FORM LANGSUNG TANPA LOGIN
-  const rsvpModal=document.getElementById("rsvpModal");
-  const openRsvp=document.getElementById("openRsvp");
-  const rsvpForm=document.getElementById("publicRsvpForm");
-  const rsvpAnggota=document.getElementById("rsvpAnggota");
+        await exportPdf(data || [], label, table);
 
-  async function loadRsvpMembers(){
-    if(!rsvpAnggota) return;
-    try{
-      const {data,error}=await BMK.supabase.from("anggota_keluarga")
-        .select("id,nama,panggilan,generasi")
-        .order("generasi",{ascending:true}).order("nama",{ascending:true});
-      if(error) throw error;
-      const rows=data||[];
-      rsvpAnggota.innerHTML='<option value="">Pilih nama Anda...</option>'+rows.map(x=>`<option value="${BMK.escape(x.id)}">${BMK.escape(x.panggilan||x.nama)}${x.nama&&x.panggilan&&x.nama!==x.panggilan?' — '+BMK.escape(x.nama):''}</option>`).join("");
-    }catch(e){
-      console.error("Daftar anggota RSVP:",e);
-      rsvpAnggota.innerHTML='<option value="">Daftar anggota belum dapat dimuat</option>';
-      BMK.toast("Daftar anggota belum dapat dimuat.","error");
-    }
-  }
-
-  function showRsvp(){
-    if(!rsvpModal)return;
-    rsvpModal.classList.add("show");
-    rsvpModal.setAttribute("aria-hidden","false");
-    document.body.classList.add("rsvp-open");
-    loadRsvpMembers();
-    setTimeout(()=>rsvpAnggota?.focus(),80);
-  }
-  function hideRsvp(){
-    if(!rsvpModal)return;
-    rsvpModal.classList.remove("show");
-    rsvpModal.setAttribute("aria-hidden","true");
-    document.body.classList.remove("rsvp-open");
-  }
-  openRsvp?.addEventListener("click",showRsvp);
-  document.querySelectorAll("[data-close-rsvp]").forEach(el=>el.addEventListener("click",hideRsvp));
-  document.addEventListener("keydown",e=>{if(e.key==="Escape")hideRsvp()});
-
-  rsvpForm?.addEventListener("submit",async function(ev){
-    ev.preventDefault();
-    const btn=document.getElementById("rsvpSubmit");
-    const fd=new FormData(rsvpForm);
-    const anggotaId=String(fd.get("anggota_id")||"");
-    const namaText=rsvpAnggota?.selectedOptions?.[0]?.textContent?.trim()||"";
-    if(!anggotaId){BMK.toast("Silakan pilih nama anggota keluarga.","error");return;}
-    const token=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():('bmk-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,14));
-    const row={nama:namaText,anggota_id:anggotaId,status:fd.get("status")||"hadir",jumlah:Math.max(1,Number(fd.get("jumlah")||1)),hp:fd.get("hp")||null,catatan:fd.get("catatan")||null,qr_token:token};
-    try{
-      if(btn){btn.disabled=true;btn.textContent="Mengirim...";}
-      const {error}=await BMK.supabase.from("rsvp").insert(row);
-      if(error) throw error;
-      rsvpForm.reset();
-      if(rsvpAnggota)rsvpAnggota.value="";
-      hideRsvp();
-      BMK.toast("Pendaftaran reuni berhasil. Simpan QR tiket Anda.","success");
-      if(window.BMKShowRsvpTicket) window.BMKShowRsvpTicket(token,namaText);
-    }catch(e){
-      console.error("RSVP publik:",e);
-      BMK.toast(e.message||"Konfirmasi gagal dikirim.","error");
-    }finally{
-      if(btn){btn.disabled=false;btn.textContent="Kirim Konfirmasi";}
-    }
+        if(window.BMK?.toast) BMK.toast(
+          "PDF " + label + " berhasil dibuat dan diunduh.",
+          "success"
+        );
+      }catch(err){
+        console.error("Export PDF:", err);
+        const message = "Export PDF gagal: " + (err.message || "Terjadi kesalahan.");
+        if(window.BMK?.toast) BMK.toast(message,"error");
+        else alert(message);
+      }finally{
+        btn.disabled = false;
+        btn.textContent = original;
+      }
+    });
   });
-});
-</script>
-
-<script>
-document.addEventListener("DOMContentLoaded", async function(){
-  if(!window.BMK?.cloud) return;
-
-  // PENGATURAN WEBSITE PUBLIK
-  try{
-    const {data,error}=await BMK.supabase.from("pengaturan")
-      .select("nama_keluarga,deskripsi,logo_url")
-      .eq("id",1).maybeSingle();
-    if(!error && data){
-      document.querySelectorAll("[data-bmk-family-name]").forEach(el=>el.textContent=data.nama_keluarga||el.textContent);
-      document.querySelectorAll("[data-bmk-family-description]").forEach(el=>el.textContent=data.deskripsi||el.textContent);
-      if(data.logo_url) document.querySelectorAll("[data-bmk-logo]").forEach(el=>el.src=data.logo_url);
-    }
-  }catch(e){console.error("Pengaturan publik:",e)}
-
-  // JUMLAH KELUARGA
-  try{
-    const {count,error}=await BMK.supabase.from("anggota_keluarga").select("*",{count:"exact",head:true});
-    if(!error) document.querySelectorAll("[data-bmk-family-count]").forEach(el=>el.textContent=count??0);
-  }catch(e){}
-
-  // RINGKASAN KAS PUBLIK — hanya total, tanpa menampilkan detail transaksi.
-  try{
-    const {data,error}=await BMK.supabase.from("kas").select("jenis,nominal");
-    if(!error && data){
-      const masuk=data.filter(x=>x.jenis==="masuk").reduce((a,x)=>a+Number(x.nominal||0),0);
-      const keluar=data.filter(x=>x.jenis==="keluar").reduce((a,x)=>a+Number(x.nominal||0),0);
-      document.querySelectorAll("[data-bmk-kas-total]").forEach(el=>el.textContent=new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0}).format(masuk-keluar));
-    }
-  }catch(e){}
-});
+})();
 </script>
 
 
 <script>
-document.addEventListener("DOMContentLoaded",async function(){
-  if(!window.BMK?.cloud)return;
-  try{
-    const {data,error}=await BMK.supabase.from("anggota_keluarga")
-      .select("id,nama,panggilan,gender,generasi,ayah_id,ibu_id,pasangan_id,foto_url,tanggal_lahir,urutan_anak")
-.order("generasi",{ascending:true}).order("nama",{ascending:true});
-    if(error)throw error;
-    const rows=data||[];
-    const fc=document.getElementById("publicFamilyCount");if(fc)fc.textContent=rows.length.toLocaleString("id-ID");
-    const gens=[...new Set(rows.map(x=>Number(x.generasi)).filter(Number.isFinite))].sort((a,b)=>a-b);
-    const gc=document.getElementById("publicGenerationCount");if(gc)gc.textContent=gens.length||"0";
-    const tree=document.getElementById("public-tree");
+(function(){
+  // V14.36 — ringkasan Kas Reuni dipakai oleh CSV, PDF, dan Excel.
+  window.BMKKasExport = {
+    summarize(rows){
+      const list = Array.isArray(rows) ? rows : [];
+      let pemasukan = 0;
+      let pengeluaran = 0;
 
-    const byId=new Map(rows.map(x=>[x.id,x]));
-    const valid=(id)=>id&&byId.has(id);
-    const parentIds=(x)=>[x.ayah_id,x.ibu_id].filter(valid);
-    const childrenOf=(members)=>{
-      const ids=new Set(members.map(x=>x.id));
-      return rows.filter(x=>parentIds(x).some(id=>ids.has(id)));
-    };
-    const seen=new Set();
+      for(const row of list){
+        const jenis = String(row?.jenis ?? "").trim().toLowerCase();
+        const nominal = Number(row?.nominal ?? 0);
+        if(!Number.isFinite(nominal)) continue;
 
-    function personCard(x){
-      const photo=x.foto_url
-        ? `<img src="${BMK.escape(x.foto_url)}" alt="${BMK.escape(x.nama||'Anggota keluarga')}">`
-        : `<span class="family-avatar-fallback">${x.gender==='L'?'👨':x.gender==='P'?'👩':'👤'}</span>`;
-      const gender=x.gender==='L'?'Laki-laki':x.gender==='P'?'Perempuan':'';
-      return `<div class="family-person">
-        <div class="family-photo">${photo}</div>
-        <div class="family-person-body">
-          <strong>${BMK.escape(x.panggilan||x.nama||'Anggota')}</strong>
-          <small>${BMK.escape(gender||'Anggota keluarga')}</small>
-        </div>
-      </div>`;
+        if(["masuk","pemasukan","income","in"].includes(jenis)){
+          pemasukan += Math.abs(nominal);
+        }else if(["keluar","pengeluaran","expense","out"].includes(jenis)){
+          pengeluaran += Math.abs(nominal);
+        }
+      }
+
+      return {
+        pemasukan,
+        pengeluaran,
+        saldo: pemasukan - pengeluaran
+      };
+    },
+    rupiah(value){
+      return new Intl.NumberFormat("id-ID",{
+        style:"currency",
+        currency:"IDR",
+        maximumFractionDigits:0
+      }).format(Number(value)||0);
     }
+  };
+})();
+</script>
 
-    function unitMembers(person){
-      const partner=valid(person.pasangan_id)?byId.get(person.pasangan_id):null;
-      const members=[person];
-      if(partner && partner.id!==person.id) members.push(partner);
-      return members;
+
+<script>
+(function(){
+  const buttons=[...document.querySelectorAll(".export-excel-kas-btn")];
+  if(!buttons.length) return;
+
+  const excluded=new Set(["id","user_id","created_at","updated_at","anggota_id"]);
+  const labels={tanggal:"Tanggal",jenis:"Jenis",nominal:"Nominal",keterangan:"Keterangan",catatan:"Catatan"};
+  const labelFor=k=>labels[k]||String(k).replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase());
+
+  function valueFor(key,value){
+    if(value===null||value===undefined||value==="") return "";
+    if(key==="nominal") return Number(value)||0;
+    if(key==="tanggal"){
+      const d=new Date(value);
+      return Number.isNaN(d.getTime()) ? String(value) :
+        d.toLocaleDateString("id-ID",{day:"2-digit",month:"long",year:"numeric"});
     }
+    if(typeof value==="object"){try{return JSON.stringify(value)}catch(_){return String(value)}}
+    return String(value);
+  }
 
-    function renderUnit(person, depth=0){
-      const members=unitMembers(person);
-      const primary=members[0];
-      const key=members.map(x=>x.id).sort().join('|');
-      if(seen.has(key))return '';
-      seen.add(key);
+  buttons.forEach(btn=>{
+    btn.addEventListener("click",async()=>{
+      const client=window.BMK?.supabase;
+      const original=btn.textContent;
+      if(!client){window.BMK?.toast?.("Koneksi Supabase belum tersedia.","error");return;}
+      if(!window.XLSX){window.BMK?.toast?.("Fitur Excel belum termuat. Muat ulang halaman lalu coba lagi.","error");return;}
 
-      const children=childrenOf(members)
-        .filter(child=>!members.some(m=>m.id===child.id))
-        .sort((a,b)=>{
-          const ua=Number.isFinite(Number(a.urutan_anak))?Number(a.urutan_anak):null;
-          const ub=Number.isFinite(Number(b.urutan_anak))?Number(b.urutan_anak):null;
-          if(ua!==null && ub!==null && ua!==ub) return ua-ub;
-          if(ua!==null && ub===null) return -1;
-          if(ua===null && ub!==null) return 1;
-          const da=a.tanggal_lahir?new Date(a.tanggal_lahir).getTime():Infinity;
-          const db=b.tanggal_lahir?new Date(b.tanggal_lahir).getTime():Infinity;
-          if(da!==db) return da-db;
-          return String(a.nama||'').localeCompare(String(b.nama||''));
+      try{
+        btn.disabled=true;
+        btn.textContent="⏳ Menyiapkan Excel...";
+
+        const {data,error}=await client.from("kas").select("*");
+        if(error) throw new Error(error.message);
+
+        const rows=data||[];
+        if(!rows.length) throw new Error("Tidak ada data Kas Reuni untuk diekspor.");
+
+        const sum=window.BMKKasExport?.summarize(rows)||{pemasukan:0,pengeluaran:0,saldo:0};
+        const present=[...new Set(rows.flatMap(r=>Object.keys(r||{})))];
+        const first=["tanggal","jenis","nominal","keterangan"];
+        const columns=first.filter(k=>present.includes(k)&&!excluded.has(k))
+          .concat(present.filter(k=>!first.includes(k)&&!excluded.has(k)));
+
+        const dataRows=[
+          ["BANI MAD KAMARI"],
+          ["LAPORAN KAS REUNI"],
+          ["Dibuat",new Date().toLocaleString("id-ID")],
+          [],
+          columns.map(labelFor),
+          ...rows.map(r=>columns.map(k=>valueFor(k,r[k]))),
+          [],
+          ["RINGKASAN KAS REUNI"],
+          ["Total Pemasukan",sum.pemasukan],
+          ["Total Pengeluaran",sum.pengeluaran],
+          ["Sisa Saldo",sum.saldo]
+        ];
+
+        const ws=XLSX.utils.aoa_to_sheet(dataRows);
+        ws["!cols"]=columns.map(k=>({wch:k==="keterangan"?38:k==="nominal"?20:k==="tanggal"?20:24}));
+
+        // Format nominal cells in transaction rows and summary rows.
+        const nominalCol=columns.indexOf("nominal");
+        if(nominalCol>=0){
+          for(let r=5;r<5+rows.length;r++){
+            const cell=XLSX.utils.encode_cell({r,c:nominalCol});
+            if(ws[cell]) ws[cell].z='#,##0';
+          }
+        }
+        const summaryStart=5+rows.length+2;
+        [summaryStart+1,summaryStart+2,summaryStart+3].forEach(r=>{
+          const cell=XLSX.utils.encode_cell({r,c:1});
+          if(ws[cell]) ws[cell].z='#,##0';
         });
 
-      const childUnits=[];
-      for(const child of children){
-        const childKey=unitMembers(child).map(x=>x.id).sort().join('|');
-        if(!seen.has(childKey)) childUnits.push(renderUnit(child,depth+1));
+        const wb=XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb,ws,"Kas Reuni");
+
+        const summarySheet=XLSX.utils.aoa_to_sheet([
+          ["BANI MAD KAMARI"],
+          ["RINGKASAN KAS REUNI"],
+          [],
+          ["Keterangan","Jumlah"],
+          ["Total Pemasukan",sum.pemasukan],
+          ["Total Pengeluaran",sum.pengeluaran],
+          ["Sisa Saldo",sum.saldo]
+        ]);
+        summarySheet["!cols"]=[{wch:24},{wch:22}];
+        ["B5","B6","B7"].forEach(cell=>{if(summarySheet[cell]) summarySheet[cell].z='#,##0';});
+        XLSX.utils.book_append_sheet(wb,summarySheet,"Ringkasan");
+
+        const stamp=new Date().toISOString().replace(/[:.]/g,"-");
+        XLSX.writeFile(wb,"BMK-Kas-Reuni-"+stamp+".xlsx");
+
+        window.BMK?.toast?.("Excel Kas Reuni berhasil diunduh dengan Total Pemasukan, Total Pengeluaran, dan Sisa Saldo.","success");
+      }catch(err){
+        console.error("Export Excel Kas:",err);
+        window.BMK?.toast?.("Export Excel Kas gagal: "+(err.message||"Terjadi kesalahan."),"error");
+      }finally{
+        btn.disabled=false;
+        btn.textContent=original;
       }
-
-      return `<div class="family-unit" data-depth="${depth}">
-        <div class="family-couple">${members.map(personCard).join('')}</div>
-        ${childUnits.length?`<div class="family-descendants">${childUnits.join('')}</div>`:''}
-      </div>`;
-    }
-
-    if(tree){
-      if(!rows.length){
-        tree.innerHTML='<div class="tree-empty"><div>🌳</div><strong>Belum ada data silsilah</strong><span>Data anggota keluarga belum tersedia.</span></div>';
-      }else{
-        const hasParents=(x)=>parentIds(x).length>0;
-        const roots=rows.filter(x=>!hasParents(x));
-        const rootPeople=roots.length?roots:rows.slice(0,1);
-        const html=rootPeople.map(x=>renderUnit(x,0)).filter(Boolean).join('');
-        const remaining=rows.filter(x=>!seen.has(x.id) && ![...seen].some(k=>k.split('|').includes(x.id)));
-        tree.innerHTML=`<div class="family-diagram-title"><span>🌳</span><div><b>Bagan Silsilah Keluarga</b><small>Hubungan keluarga berdasarkan data orang tua dan pasangan</small></div></div><div class="family-diagram-canvas">${html}</div>${remaining.length?`<div class="family-unlinked"><span>Anggota yang belum terhubung ke garis keturunan:</span>${remaining.map(personCard).join('')}</div>`:''}`;
-      }
-    }
-    const note=document.getElementById("public-tree-notice");
-    if(note)note.textContent=rows.length?"Diagram menampilkan pasangan dan keturunan berdasarkan relasi Ayah, Ibu, dan Pasangan di database Supabase.":"Belum ada data anggota keluarga di database.";
-  }catch(e){
-    console.error("[BMK] Public family:",e);
-    const tree=document.getElementById("public-tree");if(tree)tree.innerHTML='<div class="tree-empty"><div>⚠️</div><strong>Diagram belum dapat dimuat</strong><span>Silakan coba lagi beberapa saat.</span></div>';
-  }
-
-  // V14.42 — zoom in/out + geser + pinch-to-zoom untuk HP/Tablet.
-  try{
-    const viewport=document.querySelector(".family-tree-wrap");
-    const layer=document.getElementById("familyTreeZoomLayer");
-    const zin=document.getElementById("treeZoomIn"), zout=document.getElementById("treeZoomOut"), zreset=document.getElementById("treeZoomReset"), zrange=document.getElementById("treeZoomRange"), zvalue=document.getElementById("treeZoomValue");
-    let scale=1;
-
-    const applyZoom=(next,focusX=null,focusY=null)=>{
-      const old=scale;
-      scale=Math.max(.5,Math.min(3,Math.round(next*20)/20));
-      if(layer) layer.style.zoom=String(scale);
-
-      const pct=Math.round(scale*100)+"%";
-      if(zrange){
-        zrange.value=String(Math.round(scale*100));
-      }
-      if(zvalue) zvalue.textContent=pct;
-      if(zreset) zreset.textContent=pct;
-
-      if(viewport && focusX!==null && focusY!==null && old!==scale){
-        const ratio=scale/old;
-        viewport.scrollLeft=(viewport.scrollLeft+focusX)*ratio-focusX;
-        viewport.scrollTop=(viewport.scrollTop+focusY)*ratio-focusY;
-      }
-    };
-
-    const point=(touch,rect)=>({
-      x:touch.clientX-rect.left,
-      y:touch.clientY-rect.top
     });
-
-    const distance=(a,b)=>Math.hypot(b.clientX-a.clientX,b.clientY-a.clientY);
-
-    const midpoint=(a,b,rect)=>({
-      x:((a.clientX+b.clientX)/2)-rect.left,
-      y:((a.clientY+b.clientY)/2)-rect.top
-    });
-
-    zin?.addEventListener("click",()=>applyZoom(scale+.1));
-    zout?.addEventListener("click",()=>applyZoom(scale-.1));
-    zreset?.addEventListener("click",()=>applyZoom(1));
-    zrange?.addEventListener("input",e=>applyZoom(Number(e.target.value)/100));
-
-    applyZoom(1);
-
-    if(viewport){
-      let dragging=false;
-      let startX=0,startY=0,startLeft=0,startTop=0;
-
-      // Pinch state
-      let pinching=false;
-      let pinchStartDistance=0;
-      let pinchStartScale=1;
-
-      const start=(x,y)=>{
-        dragging=true;
-        startX=x;
-        startY=y;
-        startLeft=viewport.scrollLeft;
-        startTop=viewport.scrollTop;
-        viewport.classList.add("is-dragging");
-      };
-
-      const move=(x,y)=>{
-        if(!dragging || pinching)return;
-        viewport.scrollLeft=startLeft-(x-startX);
-        viewport.scrollTop=startTop-(y-startY);
-      };
-
-      const end=()=>{
-        dragging=false;
-        viewport.classList.remove("is-dragging");
-      };
-
-      viewport.addEventListener("mousedown",e=>{
-        if(e.button!==0)return;
-        if(e.target.closest("button,input,a"))return;
-        start(e.clientX,e.clientY);
-      });
-
-      window.addEventListener("mousemove",e=>move(e.clientX,e.clientY));
-      window.addEventListener("mouseup",end);
-
-      // HP / Tablet:
-      // 1 jari = geser bagan
-      // 2 jari = pinch zoom, mengikuti jarak dua jari dan titik tengah cubitan
-      viewport.addEventListener("touchstart",e=>{
-        const rect=viewport.getBoundingClientRect();
-
-        if(e.touches.length>=2){
-          pinching=true;
-          dragging=false;
-          viewport.classList.remove("is-dragging");
-          pinchStartDistance=Math.max(1,distance(e.touches[0],e.touches[1]));
-          pinchStartScale=scale;
-          e.preventDefault();
-          return;
-        }
-
-        if(e.touches.length===1 && !pinching){
-          start(e.touches[0].clientX,e.touches[0].clientY);
-        }
-      },{passive:false});
-
-      viewport.addEventListener("touchmove",e=>{
-        const rect=viewport.getBoundingClientRect();
-
-        if(e.touches.length>=2){
-          const d=Math.max(1,distance(e.touches[0],e.touches[1]));
-          const mid=midpoint(e.touches[0],e.touches[1],rect);
-          const nextScale=pinchStartScale*(d/pinchStartDistance);
-          applyZoom(nextScale,mid.x,mid.y);
-          e.preventDefault();
-          return;
-        }
-
-        if(e.touches.length===1 && !pinching){
-          move(e.touches[0].clientX,e.touches[0].clientY);
-          e.preventDefault();
-        }
-      },{passive:false});
-
-      viewport.addEventListener("touchend",e=>{
-        if(e.touches.length>=2){
-          e.preventDefault();
-          return;
-        }
-
-        if(pinching){
-          pinching=false;
-          // Jika setelah pinch masih tersisa satu jari, lanjutkan sebagai gesture geser.
-          if(e.touches.length===1){
-            start(e.touches[0].clientX,e.touches[0].clientY);
-          }else{
-            end();
-          }
-          e.preventDefault();
-          return;
-        }
-
-        if(e.touches.length===0) end();
-      },{passive:false});
-
-      viewport.addEventListener("touchcancel",()=>{
-        pinching=false;
-        end();
-      },{passive:true});
-
-      viewport.addEventListener("wheel",e=>{
-        if(e.ctrlKey){
-          e.preventDefault();
-          applyZoom(scale+(e.deltaY<0?.1:-.1),e.offsetX,e.offsetY);
-          return;
-        }
-        if(e.shiftKey || Math.abs(e.deltaX)>Math.abs(e.deltaY)){
-          viewport.scrollLeft+=e.deltaX||e.deltaY;
-          e.preventDefault();
-        }
-      },{passive:false});
-    }
-  }catch(e){console.warn("[BMK V14.42] Tree zoom/pan/pinch:",e);}
-
-  // DAFTAR PENGURUS
-  try{
-    const {data,error}=await BMK.supabase.from("pengurus")
-      .select("id,nama,jabatan,bio,foto_url,no_hp,whatsapp,email,urutan,aktif")
-      .eq("aktif",true).order("urutan",{ascending:true}).order("nama",{ascending:true});
-    if(error)throw error;
-    const box=document.getElementById("public-pengurus");
-    if(box){
-      box.innerHTML=data?.length?data.map(x=>`<article class="management-card">
-        <div class="management-photo">${x.foto_url?`<img src="${BMK.escape(x.foto_url)}" alt="${BMK.escape(x.nama)}">`:'<span>👤</span>'}</div>
-        <div class="management-body"><span class="management-role">${BMK.escape(x.jabatan||'Pengurus')}</span><h3>${BMK.escape(x.nama)}</h3>${x.bio?`<p>${BMK.escape(x.bio)}</p>`:''}${x.no_hp?`<a class="management-contact" href="tel:${BMK.escape(x.no_hp)}">☎ ${BMK.escape(x.no_hp)}</a>`:(x.whatsapp?`<a class="management-contact" href="https://wa.me/${String(x.whatsapp).replace(/\D/g,"")}" target="_blank" rel="noopener noreferrer">💬 WhatsApp</a>`:(x.email?`<a class="management-contact" href="mailto:${BMK.escape(x.email)}">✉ ${BMK.escape(x.email)}</a>`:''))}</div>
-      </article>`).join(''):'<div class="management-empty"><strong>Daftar pengurus belum diisi.</strong><span>Data dapat ditambahkan dari Dashboard Admin → Pengurus.</span></div>';
-    }
-  }catch(e){
-    console.error("[BMK] Public pengurus:",e);
-    const box=document.getElementById("public-pengurus");if(box)box.innerHTML='<div class="management-empty"><strong>Daftar pengurus belum tersedia.</strong><span>Tambahkan tabel pengurus melalui pengaturan database.</span></div>';
-  }
-
-  // KONTAK FOOTER — diambil dari pengaturan website
-  try{
-    const {data,error}=await BMK.supabase.from("pengaturan").select("kontak_nama,kontak_hp,kontak_email,kontak_alamat").eq("id",1).maybeSingle();
-    const box=document.getElementById("public-contact");
-    if(box&&!error&&data){
-      const items=[];
-      if(data.kontak_nama)items.push(`<span>👤 ${BMK.escape(data.kontak_nama)}</span>`);
-      if(data.kontak_hp)items.push(`<a href="tel:${BMK.escape(data.kontak_hp)}">☎ ${BMK.escape(data.kontak_hp)}</a>`);
-      if(data.kontak_email)items.push(`<a href="mailto:${BMK.escape(data.kontak_email)}">✉ ${BMK.escape(data.kontak_email)}</a>`);
-      if(data.kontak_alamat)items.push(`<span>⌖ ${BMK.escape(data.kontak_alamat)}</span>`);
-      box.innerHTML=items.length?items.join(''):'<span>Kontak belum diatur.</span>';
-    }
-  }catch(e){console.error("[BMK] Public contact:",e)}
-});
-</script>
-
-<script>
-(function(){
-  const btn=document.querySelector(".bmk-home-float");
-  if(!btn)return;
-  function toggle(){
-    btn.classList.toggle("show",window.scrollY>500);
-  }
-  window.addEventListener("scroll",toggle,{passive:true});
-  toggle();
-  btn.addEventListener("click",function(e){
-    e.preventDefault();
-    window.scrollTo({top:0,behavior:"smooth"});
   });
 })();
 </script>
 
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js")
-      .catch(err => console.warn("[BMK V14.42] Service worker:", err));
-  });
-}
-</script>
-
-
-<script>
-(function(){
-  const splash=document.getElementById("bmk-startup");
-  if(!splash) return;
-
-  const bar=document.getElementById("bmk-startup-bar");
-  const percent=document.getElementById("bmk-startup-percent");
-  const status=document.getElementById("bmk-startup-status");
-
-  let hidden=false;
-  let progress=0;
-  let loaded=(document.readyState==="complete");
-
-  const setProgress=(value,text)=>{
-    progress=Math.max(0,Math.min(100,Math.round(value)));
-    if(bar) bar.style.width=progress+"%";
-    if(percent) percent.textContent=progress+"%";
-    if(status && text) status.textContent=text;
-  };
-
-  const hide=()=>{
-    if(hidden) return;
-    hidden=true;
-    setProgress(100,"Siap dibuka");
-    setTimeout(()=>{
-      splash.classList.add("hide");
-      setTimeout(()=>splash.remove(),300);
-    },120);
-  };
-
-  // The first stage intentionally follows the supplied mockup:
-  // app icon -> BANI MAD KAMARI -> PORTAL KELUARGA -> loading -> website.
-  const started=performance.now();
-  const sequence=[
-    [18,"Memuat website…",120],
-    [35,"Menyiapkan tampilan…",170],
-    [52,"Memuat data keluarga…",190],
-    [65,"Memuat konten…",180],
-    [82,"Menyiapkan halaman…",180],
-    [92,"Hampir selesai…",180]
-  ];
-
-  let timer=0;
-  sequence.forEach(item=>{
-    timer+=item[2];
-    setTimeout(()=>setProgress(item[0],item[1]),timer);
-  });
-
-  const finish=()=>{
-    const elapsed=performance.now()-started;
-    const minimum=1500;
-    setTimeout(hide,Math.max(0,minimum-elapsed));
-  };
-
-  if(loaded){
-    finish();
-  }else{
-    window.addEventListener("load",()=>{
-      loaded=true;
-      finish();
-    },{once:true});
-  }
-
-  // Never leave the user stuck on the startup screen.
-  setTimeout(()=>{
-    if(!hidden){
-      setProgress(Math.max(progress,96),"Membuka website…");
-      hide();
-    }
-  },4800);
-})();
-</script>
-
-
-<script>
-(function(){
-  function activate(link){
-    if(!link) return;
-    const href=link.getAttribute("href")||"";
-    if(!href.startsWith("#")) return;
-    const target=document.getElementById(href.slice(1));
-    if(!target) return;
-
-    try{ history.replaceState(null,"",href); }catch(_){}
-    // Native-style direct scroll; no wait for other scripts/data.
-    target.scrollIntoView({behavior:"smooth",block:"start",inline:"nearest"});
-  }
-
-  document.addEventListener("click",function(e){
-    const link=e.target.closest?.('a[data-bmk-hero-nav]');
-    if(!link) return;
-    e.preventDefault();
-    e.stopPropagation();
-    activate(link);
-  },true);
-})();
-</script>
-
-
-<!-- V14.43 RSVP QR TICKET -->
-<div class="bmk-ticket-overlay" id="bmkRsvpTicket" aria-hidden="true">
- <div class="bmk-ticket-card" role="dialog" aria-modal="true" aria-labelledby="bmkTicketTitle">
-  <div style="font-size:34px">🎟️</div><span class="eyebrow">TIKET DIGITAL REUNI</span><h2 id="bmkTicketTitle">Pendaftaran berhasil</h2>
-  <p>Simpan QR ini dan tunjukkan kepada panitia saat check-in. Satu QR digunakan untuk satu pendaftaran.</p>
-  <div class="bmk-ticket-qr" id="bmkRsvpQr"></div><div id="bmkRsvpTicketName" style="font-weight:700"></div><div class="bmk-ticket-code" id="bmkRsvpTicketCode"></div>
-  <div class="bmk-ticket-actions"><button type="button" class="bmk-ticket-primary" id="bmkDownloadRsvpQr">Unduh QR</button><button type="button" class="bmk-ticket-secondary" id="bmkCloseRsvpTicket">Tutup</button></div>
- </div>
-</div>
-<script id="bmk-v1443-rsvp-qr-ticket">
-(function(){
- const overlay=document.getElementById('bmkRsvpTicket');
- const close=()=>{overlay?.classList.remove('show');overlay?.setAttribute('aria-hidden','true');document.body.classList.remove('bmk-ticket-open')};
- document.getElementById('bmkCloseRsvpTicket')?.addEventListener('click',close);
- overlay?.addEventListener('click',e=>{if(e.target===overlay)close()});
- document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
- function loadQrLib(){return new Promise((resolve,reject)=>{if(window.QRCode)return resolve();const old=document.querySelector('script[data-bmk-qrcode]');if(old){old.addEventListener('load',resolve,{once:true});old.addEventListener('error',reject,{once:true});return}const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js';sc.dataset.bmkQrcode='1';sc.onload=resolve;sc.onerror=()=>reject(new Error('Pustaka QR tidak dapat dimuat'));document.head.appendChild(sc)})}
- window.BMKShowRsvpTicket=async function(token,name){
-  const box=document.getElementById('bmkRsvpQr');box.innerHTML='<span style="font-size:12px;color:#68736c">Membuat QR...</span>';
-  document.getElementById('bmkRsvpTicketName').textContent=name||'Pendaftar reuni';document.getElementById('bmkRsvpTicketCode').textContent='Kode tiket: '+token;
-  overlay.classList.add('show');overlay.setAttribute('aria-hidden','false');document.body.classList.add('bmk-ticket-open');
-  try{await loadQrLib();box.innerHTML='';new QRCode(box,{text:'BMK-REUNI:'+token,width:196,height:196,colorDark:'#173b2a',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});}
-  catch(e){box.innerHTML='<p style="font-size:12px">QR belum dapat dibuat. Simpan kode tiket di bawah dan hubungi panitia.</p>';console.error(e)}
- };
- document.getElementById('bmkDownloadRsvpQr')?.addEventListener('click',()=>{const box=document.getElementById('bmkRsvpQr');const canvas=box.querySelector('canvas');const img=box.querySelector('img');let url='';if(canvas)url=canvas.toDataURL('image/png');else if(img)url=img.src;if(!url){alert('QR belum siap. Periksa koneksi internet lalu coba lagi.');return}const a=document.createElement('a');a.href=url;a.download='BMK-Tiket-Reuni.png';a.click()});
-})();
-</script>
 </body></html>

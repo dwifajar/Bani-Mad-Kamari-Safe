@@ -1,0 +1,155 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Data Keluarga — BANI MAD KAMARI</title><link rel="stylesheet" href="../assets/css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../assets/js/supabase-config.js"></script><script src="../assets/js/cloud.js"></script>
+<style>.cloudbar{margin:10px 0;padding:9px 12px;border:1px solid #e4e8e2;background:#fff;font-size:12px}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.formgrid label{font-size:11px;color:#68736c}.formgrid input,.formgrid select,.formgrid textarea{width:100%;padding:10px;border:1px solid #ddd;margin-top:5px;font:12px Arial;box-sizing:border-box}.full{grid-column:1/-1}.crudbar{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}.crudbar input,.crudbar select{padding:11px;border:1px solid #ddd}.crudbar button{padding:11px 15px;border:0;background:#214936;color:#fff;cursor:pointer}.table-box{background:#fff;border:1px solid #e2e5df;overflow:auto}table{width:100%;border-collapse:collapse;min-width:760px}th{background:#f1f3ee;text-align:left;font-size:10px;padding:12px}td{padding:12px;border-top:1px solid #edf0eb;font-size:12px}.action{border:0;background:none;color:#214936;font-weight:bold;cursor:pointer}.modal-bg{position:fixed;inset:0;background:#10281d88;display:none;align-items:center;justify-content:center;z-index:50}.modal-bg.show{display:flex}.modal{background:#fff;width:min(700px,94vw);max-height:90vh;overflow:auto;padding:28px}.modal h2{font:26px Georgia;color:#214936;margin-top:0}.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}.modal-actions button{padding:11px 16px;border:0;cursor:pointer}.save{background:#214936;color:#fff}.cancel{background:#eee}.thumb{width:70px;height:50px;object-fit:cover;border-radius:6px}@media(max-width:700px){.formgrid{grid-template-columns:1fr}.full{grid-column:auto}}
+.photo-field{grid-column:1/-1;border:1px dashed #d6d2c4;background:#faf9f4;padding:14px;border-radius:10px}.photo-row{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.photo-preview{width:88px;height:88px;border-radius:12px;border:1px solid #ddd7c8;background:#f0eee5;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:38px}.photo-preview img{width:100%;height:100%;object-fit:cover}.photo-help{font-size:11px;color:#788078;margin-top:6px}.birth-grid{display:grid;grid-template-columns:1fr 1.5fr 1.2fr;gap:8px;margin-top:5px}.birth-grid select{margin-top:0}.family-thumb{width:48px;height:48px;border-radius:9px;object-fit:cover;vertical-align:middle;border:1px solid #ddd7c8}.family-avatar-mini{display:inline-flex;width:48px;height:48px;border-radius:9px;align-items:center;justify-content:center;background:#f0eee5;font-size:24px;vertical-align:middle}
+
+.order-help{display:block;margin-top:5px;color:#7b817b;font-size:11px;line-height:1.4}
+</style></head>
+<body class="admin-body"><aside class="sidebar">
+<a class="brand" href="../index.html"><span class="brand-mark">BMK</span><span><b>BANI MAD KAMARI</b><small>Admin Panel</small></span></a>
+<nav>
+<a href="index.html"><span class="nav-icon">▦</span><span>Dashboard</span></a>
+<a class="active" href="keluarga.html"><span class="nav-icon">👥</span><span>Data Keluarga</span></a>
+<a href="silsilah.html"><span class="nav-icon">🌳</span><span>Silsilah</span></a>
+<a href="pengurus.html"><span class="nav-icon">👔</span><span>Pengurus</span></a>
+<a href="kontak.html"><span class="nav-icon">☎</span><span>Kontak</span></a>
+<a href="reuni.html"><span class="nav-icon">📅</span><span>Reuni</span></a><a href="dashboard-reuni.html"><span class="nav-icon">📊</span><span>Dashboard Reuni</span></a>
+<a href="pendaftaran.html"><span class="nav-icon">✎</span><span>Pendaftaran</span></a>
+<a href="galeri.html"><span class="nav-icon">▣</span><span>Galeri</span></a>
+<a href="berita.html"><span class="nav-icon">▤</span><span>Berita</span></a>
+<a href="kas.html"><span class="nav-icon">Rp</span><span>Kas Reuni</span></a>
+<a href="pengguna.html"><span class="nav-icon">●</span><span>Pengguna</span></a>
+<a href="pengaturan.html"><span class="nav-icon">⚙</span><span>Pengaturan</span></a>
+<a href="audit.html"><span class="nav-icon">📝</span><span>Log Aktivitas</span></a>
+</nav>
+<button id="logout" class="side-logout">Keluar</button>
+</aside><main class="admin-main"><header class="admin-head"><div><span class="eyebrow">SUPABASE CRUD</span><h1>👨‍👩‍👧‍👦 Data Keluarga</h1><p>Data tersimpan di Supabase saat Cloud aktif.</p></div><a class="btn ghost" href="../index.html">Lihat Website ↗</a></header>
+<div class="cloudbar">Status: <b data-bmk-mode>☁️ Supabase</b> · <span data-bmk-user></span></div><div class="admin-stats"><div><span>Total</span><b id="total">0</b></div><div><span>Laki-laki</span><b id="male">0</b></div><div><span>Perempuan</span><b id="female">0</b></div><div><span>Generasi</span><b id="gens">0</b></div></div>
+<div class="crudbar"><input id="q" placeholder="🔎 Cari nama / HP / alamat"><button onclick="openForm()">＋ Tambah Anggota</button></div><div class="table-box"><table><thead><tr><th>FOTO</th><th>NAMA</th><th>GENDER</th><th>GENERASI</th><th>HP</th><th>ALAMAT</th><th>AKSI</th></tr></thead><tbody id="rows"></tbody></table></div>
+<div class="modal-bg" id="modal"><div class="modal"><h2 id="mt">Tambah Anggota</h2><form id="form">
+<div class="formgrid">
+<label>Nama*<input name="nama" required></label>
+<label>Panggilan<input name="panggilan"></label>
+<label>Gender<select name="gender"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></label>
+<label>Generasi<input name="generasi" type="number" min="1" value="1"></label>
+<label>Urutan Anak
+  <select name="urutan_anak" id="urutan_anak">
+    <option value="">Otomatis berdasarkan tanggal lahir</option>
+    <option value="1">Anak ke-1</option><option value="2">Anak ke-2</option><option value="3">Anak ke-3</option><option value="4">Anak ke-4</option><option value="5">Anak ke-5</option><option value="6">Anak ke-6</option><option value="7">Anak ke-7</option><option value="8">Anak ke-8</option><option value="9">Anak ke-9</option><option value="10">Anak ke-10</option><option value="11">Anak ke-11</option><option value="12">Anak ke-12</option>
+  </select>
+  <small class="photo-help">Kosongkan untuk otomatis: tanggal lahir tertua menjadi kakak tertua.</small>
+</label>
+<label>Tempat lahir<input name="tempat_lahir"></label>
+<label class="full">Tanggal lahir
+  <div class="birth-grid">
+    <select id="lahir_day"><option value="">Tanggal</option></select>
+    <select id="lahir_month"><option value="">Bulan</option></select>
+    <select id="lahir_year"><option value="">Tahun</option></select>
+  </div>
+  <input type="hidden" name="tanggal_lahir" id="tanggal_lahir">
+  <div class="photo-help">Pilih tanggal, bulan, dan tahun lahir secara terpisah agar lebih mudah diisi.</div>
+</label>
+<label>HP<input name="hp"></label><label>Email<input name="email" type="email"></label>
+<div class="photo-field">
+  <b>📷 Foto Anggota Keluarga</b>
+  <div class="photo-row">
+    <div class="photo-preview" id="photoPreview">👤</div>
+    <div>
+      <input type="file" id="fotoFile" accept="image/jpeg,image/png,image/webp,image/gif">
+      <div class="photo-help">JPG, PNG, WEBP atau GIF. Maksimal 5 MB. Jika tidak ada foto, diagram silsilah otomatis memakai avatar.</div>
+    </div>
+  </div>
+</div>
+<label class="full">Alamat<textarea name="alamat" placeholder="Alamat lengkap anggota keluarga"></textarea></label>
+<label>Ayah<select name="ayah_id"><option value="">— Tidak ada / belum dipilih —</option></select></label>
+<label>Ibu<select name="ibu_id"><option value="">— Tidak ada / belum dipilih —</option></select></label>
+<label>Pasangan<select name="pasangan_id"><option value="">— Tidak ada / belum dipilih —</option></select></label>
+<label class="full">Bio<textarea name="bio"></textarea></label>
+</div>
+<div class="modal-actions"><button type="button" class="cancel" onclick="closeForm()">Batal</button><button class="save" id="saveBtn">Simpan</button></div>
+</form></div></div></main>
+<script>
+document.getElementById("logout")?.addEventListener("click",()=>BMK.signOut());
+(async()=>{ if(window.BMK?.cloud) await BMK.requireAuth(["super_admin","admin","editor"]); })();
+let data=[],editId=null,currentPhotoUrl="";
+
+const months=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+function initBirthSelectors(){
+  const d=document.getElementById("lahir_day"),m=document.getElementById("lahir_month"),y=document.getElementById("lahir_year");
+  if(!d||!m||!y)return;
+  d.innerHTML='<option value="">Tanggal</option>'+Array.from({length:31},(_,i)=>`<option value="${String(i+1).padStart(2,"0")}">${i+1}</option>`).join("");
+  m.innerHTML='<option value="">Bulan</option>'+months.map((x,i)=>`<option value="${String(i+1).padStart(2,"0")}">${x}</option>`).join("");
+  const now=new Date().getFullYear();
+  y.innerHTML='<option value="">Tahun</option>'+Array.from({length:now-1899},(_,i)=>{const yr=now-i;return `<option value="${yr}">${yr}</option>`}).join("");
+  [d,m,y].forEach(el=>el.addEventListener("change",syncBirth));
+}
+function syncBirth(){
+  const d=document.getElementById("lahir_day")?.value,m=document.getElementById("lahir_month")?.value,y=document.getElementById("lahir_year")?.value,h=document.getElementById("tanggal_lahir");
+  if(h) h.value=(d&&m&&y)?`${y}-${m}-${d}`:"";
+}
+function setBirth(value){
+  const h=document.getElementById("tanggal_lahir"),d=document.getElementById("lahir_day"),m=document.getElementById("lahir_month"),y=document.getElementById("lahir_year");
+  if(h)h.value=value||"";
+  if(!value){if(d)d.value="";if(m)m.value="";if(y)y.value="";return;}
+  const parts=String(value).slice(0,10).split("-");
+  if(parts.length===3){if(y)y.value=parts[0];if(m)m.value=parts[1];if(d)d.value=parts[2];}
+}
+
+function optionList(selected, excludeId, genderFilter){
+  const list=data.filter(x=>x.id!==excludeId&&(!genderFilter||x.gender===genderFilter));
+  return '<option value="">— Tidak ada / belum dipilih —</option>'+list.map(x=>`<option value="${x.id}" ${x.id===selected?'selected':''}>${BMK.escape(x.nama)}${x.panggilan?' ('+BMK.escape(x.panggilan)+')':''} · Gen ${x.generasi||'-'}</option>`).join('');
+}
+async function load(){
+  if(!BMK.cloud){BMK.toast("Isi supabase-config.js terlebih dahulu","error");return}
+  try{data=await BMK.db.get("anggota_keluarga","generasi",true);render();}
+  catch(e){BMK.toast(e.message,"error")}
+}
+function miniPhoto(x){return x.foto_url?`<img class="family-thumb" src="${BMK.escape(x.foto_url)}" alt="">`:`<span class="family-avatar-mini">${x.gender==='L'?'👨':x.gender==='P'?'👩':'👤'}</span>`}
+function render(){
+  const q=document.getElementById("q").value.toLowerCase();
+  const a=data.filter(x=>JSON.stringify(x).toLowerCase().includes(q));
+  document.getElementById("total").textContent=data.length;document.getElementById("male").textContent=data.filter(x=>x.gender==="L").length;document.getElementById("female").textContent=data.filter(x=>x.gender==="P").length;document.getElementById("gens").textContent=new Set(data.map(x=>x.generasi)).size;
+  document.getElementById("rows").innerHTML=a.map(x=>`<tr><td>${miniPhoto(x)}</td><td><b>${BMK.escape(x.nama)}</b><br><small>${BMK.escape(x.panggilan||"")}</small></td><td>${x.gender==="L"?"Laki-laki":"Perempuan"}</td><td>${x.generasi||"-"}</td><td>${x.urutan_anak?"Anak ke-"+x.urutan_anak:"Otomatis"}</td><td>${BMK.escape(x.hp||"-")}</td><td>${BMK.escape(x.alamat||"-")}</td><td><button class="action" onclick="edit('${x.id}')">Edit</button> · <button class="action" onclick="del('${x.id}')">Hapus</button></td></tr>`).join("");
+}
+document.getElementById("q").oninput=render;
+function fillRelationSelects(x){document.querySelector('[name="ayah_id"]').innerHTML=optionList(x?.ayah_id||"",x?.id,"L");document.querySelector('[name="ibu_id"]').innerHTML=optionList(x?.ibu_id||"",x?.id,"P");document.querySelector('[name="pasangan_id"]').innerHTML=optionList(x?.pasangan_id||"",x?.id,"");}
+function showPhoto(url){currentPhotoUrl=url||"";const p=document.getElementById("photoPreview");if(p)p.innerHTML=url?`<img src="${BMK.escape(url)}" alt="Foto anggota">`:(document.querySelector('[name="gender"]')?.value==="L"?'👨':document.querySelector('[name="gender"]')?.value==="P"?'👩':'👤');}
+function openForm(x=null){
+  editId=x?.id||null;document.getElementById("mt").textContent=x?"Edit Anggota":"Tambah Anggota";const f=document.getElementById("form");f.reset();document.getElementById("fotoFile").value="";
+  if(x){for(const [k,v] of Object.entries(x)){if(f.elements[k]&&!['ayah_id','ibu_id','pasangan_id','tanggal_lahir'].includes(k))f.elements[k].value=v??"";}setBirth(x.tanggal_lahir||"");}else setBirth("");
+  fillRelationSelects(x);showPhoto(x?.foto_url||"");document.getElementById("modal").classList.add("show");
+}
+function closeForm(){document.getElementById("modal").classList.remove("show")}
+async function edit(id){openForm(data.find(x=>x.id===id))}
+async function del(id){if(!(await BMK.confirm("Data anggota keluarga ini akan dihapus permanen dari daftar. Lanjutkan?")))return;try{await BMK.db.remove("anggota_keluarga",id);await load();BMK.toast("Data dihapus","success")}catch(e){BMK.toast(e.message,"error")}}
+async function uploadPhoto(file,id){
+  if(!file)return currentPhotoUrl||null;
+  if(!/^image\/(jpeg|png|webp|gif)$/.test(file.type))throw new Error("Format foto harus JPG, PNG, WEBP atau GIF.");
+  if(file.size>5*1024*1024)throw new Error("Ukuran foto maksimal 5 MB.");
+  const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
+  const path=`keluarga/${id}-${Date.now()}.${ext}`;
+  const {error}=await BMK.supabase.storage.from("bmk-media").upload(path,file,{upsert:true,contentType:file.type});
+  if(error)throw error;
+  return BMK.supabase.storage.from("bmk-media").getPublicUrl(path).data.publicUrl;
+}
+document.getElementById("fotoFile").addEventListener("change",e=>{const f=e.target.files?.[0];if(f)showPhoto(URL.createObjectURL(f));});
+document.getElementById("form").onsubmit=async e=>{
+  e.preventDefault();syncBirth();const btn=document.getElementById("saveBtn");if(btn){btn.disabled=true;btn.textContent="Menyimpan...";}
+  let o=Object.fromEntries(new FormData(e.target));o.generasi=Number(o.generasi||1);o.urutan_anak=o.urutan_anak?Number(o.urutan_anak):null;o.tanggal_lahir=o.tanggal_lahir||null;for(const k of ["ayah_id","ibu_id","pasangan_id"])o[k]=o[k]||null;
+  const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;for(const k of ["ayah_id","ibu_id","pasangan_id"]){if(o[k]&&!uuid.test(o[k])){BMK.toast("Relasi keluarga tidak valid. Pilih anggota dari daftar.","error");if(btn){btn.disabled=false;btn.textContent="Simpan";}return;}}
+  const file=document.getElementById("fotoFile")?.files?.[0]||null;
+  try{
+    let row;
+    if(editId){
+      const {data:r,error}=await BMK.supabase.from("anggota_keluarga").update(o).eq("id",editId).select().single();if(error)throw error;row=r;
+    }else{
+      const {data:r,error}=await BMK.supabase.from("anggota_keluarga").insert(o).select().single();if(error)throw error;row=r;
+    }
+    if(file){const url=await uploadPhoto(file,row.id);const {error}=await BMK.supabase.from("anggota_keluarga").update({foto_url:url}).eq("id",row.id);if(error)throw error;}
+    closeForm();await load();BMK.toast(file?"Data dan foto berhasil disimpan":"Data berhasil disimpan","success");
+  }catch(e){console.error(e);BMK.toast(e.message||"Gagal menyimpan data","error");}
+  finally{if(btn){btn.disabled=false;btn.textContent="Simpan";}}
+};
+initBirthSelectors();load();
+</script></body></html>
