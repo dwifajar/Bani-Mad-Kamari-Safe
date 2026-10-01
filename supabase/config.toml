@@ -1,0 +1,8 @@
+# BANI MAD KAMARI — Supabase Edge Functions V14.47
+# push-public-key is intentionally public: it returns only the VAPID public key.
+[functions.push-public-key]
+verify_jwt = false
+
+# send-reuni-push must receive a valid Supabase user JWT.
+[functions.send-reuni-push]
+verify_jwt = true
